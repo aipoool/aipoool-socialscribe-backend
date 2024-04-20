@@ -24,9 +24,10 @@ app.get("/test", (req, res) => {
 })
 
 app.post("/generate-response" , async (req, res) => {
-    const {prompt, openAIKey} = req.body; 
+    const {post, tone, openAIKey} = req.body; 
 
     try{
+        const prompt = `As a professional writer, craft a succinct comment on the given LinkedIn post. Ensure your response aligns with the specified tone. \n\nLinkedIn Post: \n${post}\nDesired Tone: \n${tone}.`
         const comment = await postChatGPTMessage(prompt, openAIKey); 
         res.json({results: {comment}}); 
 
