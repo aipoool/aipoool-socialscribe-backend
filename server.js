@@ -19,11 +19,11 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 // Testing routes 
-app.get("/rt/v1/test", (req, res) => {
+app.get("/test", (req, res) => {
     res.json({Hi: "This is a testing message"}); 
 })
 
-app.post("/rt/v1/generate" , async (req, res) => {
+app.post("/generate-response" , async (req, res) => {
     const {prompt, openAIKey} = req.body; 
 
     try{
