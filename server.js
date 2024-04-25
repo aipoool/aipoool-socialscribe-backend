@@ -4,12 +4,19 @@ import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
 import { postChatGPTMessage } from "./generateComment.js";
+import cors from "cors";
+//var cors = require("cors");
 
 const app = express();
 
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan("dev")); 
 }
+
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+       next();
+ });
 
 
 // Middleware 
@@ -23,17 +30,19 @@ app.get("/test", (req, res) => {
     res.json({Hi: "This is a testing message"}); 
 })
 
-app.post("/generate-response" , async (req, res) => {
+app.options("/generate-response" , cors()); 
+
+app.post("/generate-response", cors() , async (req, res) => {
     const {post, tone, openAIKey} = req.body; 
+    //console.log(req.body);
 
     try{
-        const prompt = `As a professional writer, craft a succinct comment on the given LinkedIn post. Ensure your response aligns with the specified tone. \n\nLinkedIn Post: \n${post}\nDesired Tone: \n${tone}.`
-        const comment = await postChatGPTMessage(prompt, openAIKey); 
+        const comment = await postChatGPTMessage(post , tone, openAIKey); 
         res.json({results: {comment}}); 
 
     }catch(err){
         console.log(err); 
-        res.status(500).json({err}); 
+        res.status(500).json({error: err.message});  
     }
 })
 
