@@ -8,6 +8,7 @@ import cors from "cors";
 //var cors = require("cors");
 
 const app = express();
+app.use(cors());
 
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan("dev")); 
