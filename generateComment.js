@@ -5,7 +5,11 @@ const CHATGPT_END_POINT = "https://api.openai.com/v1/chat/completions";
 const CHATGPT_MODEL = "gpt-3.5-turbo";
 
 // Function to send a message to the ChatGPT API and return the response
-export const postChatGPTMessage = async (prompt, openAIKey) => {
+export const postChatGPTMessage = async (post, tone, openAIKey) => {
+
+  const prompt = `Consider yourself to be a professional writer, who could seamlessly draft comments 
+  based on the given posts maintaining the tone being asked to maintain. Write a short comment on the given LinkedIn post : ${post} ,
+  maintaining the ${tone} tone and also add emojis wherever required.`
   // Set headers for the axios request
   const config = {
     headers: {

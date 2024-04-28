@@ -35,19 +35,20 @@ router.post("/userdata", async (req, res) => {
 });
 
 router.post("/setCounter", cors() , async(req, res) => {
-  const {id, count} = req.body; 
+  const {id, count, accessToken} = req.body; 
   console.log(req.body); 
 
   try{
-      const updatedUser = await userdb.findOneAndUpdate(
+      if(accessToken){
+        const updatedUser = await userdb.findOneAndUpdate(
           {_id: id}, 
           {$set: {buttonCounts: count}}, 
           {new: true, useFindAndModify: false}
-      );
+        );
+        console.log("Updated User: ", updatedUser); 
+        res.send({message: 'Counter updated successfully'});
+      }
 
-      console.log("Updated User: ", updatedUser); 
-
-      res.send({message: 'Counter updated successfully'});
   }catch (error) {
       console.error('Error updating Counter:', error);
       res.status(500).send({ message: 'Error updating Counter' });
@@ -56,13 +57,14 @@ router.post("/setCounter", cors() , async(req, res) => {
 
 
 router.post("/getCounter", cors() , async(req, res) => {
-    const {id} = req.body; 
+    const {id, accessToken} = req.body; 
     try{
-        const response = await userdb.findById(id);
+        if(accessToken){
+          const response = await userdb.findById(id);
+          console.log("COUNTER GET :: : ", response.buttonCounts);
+          res.status(200).json({count:response.buttonCounts});
+        }
 
-        console.log("COUNTER GET :: : ", response.buttonCounts);
-
-        res.status(200).json({count:response.buttonCounts});
     }catch (error) {
         console.error('Error getting Counter:', error);
         res.status(500).send({ message: 'Error getting Counter' });
