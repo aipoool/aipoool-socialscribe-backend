@@ -34,42 +34,43 @@ router.post("/userdata", async (req, res) => {
     }
 });
 
-router.post("/setCounter", cors() , async(req, res) => {
-  const {id, count, accessToken} = req.body; 
-  console.log(req.body); 
+// router.post("/setCounter", cors() , async(req, res) => {
+//   const {id, count, accessToken} = req.body; 
+//   console.log(req.body); 
 
-  try{
-      if(accessToken){
-        const updatedUser = await userdb.findOneAndUpdate(
-          {_id: id}, 
-          {$set: {buttonCounts: count}}, 
-          {new: true, useFindAndModify: false}
-        );
-        console.log("Updated User: ", updatedUser); 
-        res.send({message: 'Counter updated successfully'});
-      }
+//   try{
+//       if(accessToken){
+//         const updatedUser = await userdb.findOneAndUpdate(
+//           {_id: id}, 
+//           {$set: {buttonCounts: count}}, 
+//           {new: true, useFindAndModify: false}
+//         );
+//         console.log("Updated User: ", updatedUser); 
 
-  }catch (error) {
-      console.error('Error updating Counter:', error);
-      res.status(500).send({ message: 'Error updating Counter' });
-    }
-});
+//         res.send({message: 'Counter updated successfully'});
+//       }
+
+//   }catch (error) {
+//       console.error('Error updating Counter:', error);
+//       res.status(500).send({ message: 'Error updating Counter' });
+//     }
+// });
 
 
-router.post("/getCounter", cors() , async(req, res) => {
-    const {id, accessToken} = req.body; 
-    try{
-        if(accessToken){
-          const response = await userdb.findById(id);
-          console.log("COUNTER GET :: : ", response.buttonCounts);
-          res.status(200).json({count:response.buttonCounts});
-        }
+// router.post("/getCounter", cors() , async(req, res) => {
+//     const {id, accessToken} = req.body; 
+//     try{
+//         if(accessToken){
+//           const response = await userdb.findById(id);
+//           console.log("COUNTER GET :: : ", response.buttonCounts);
+//           res.status(200).json({count:response.buttonCounts});
+//         }
 
-    }catch (error) {
-        console.error('Error getting Counter:', error);
-        res.status(500).send({ message: 'Error getting Counter' });
-      }
-})
+//     }catch (error) {
+//         console.error('Error getting Counter:', error);
+//         res.status(500).send({ message: 'Error getting Counter' });
+//       }
+// })
 
 //module.exports = router; 
 

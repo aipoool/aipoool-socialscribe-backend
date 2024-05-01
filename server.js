@@ -7,25 +7,43 @@ import auth from "./routes/authentication.js";
 import apiRoute from "./routes/apiRoute.js"
 import session from "express-session";
 import GoogleStrategy from "passport-google-oauth20";
+import OAuth2Strategy from "passport-google-oauth2";
 import cors from "cors";
 import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
+import rateLimit from "express-rate-limit";
 
 await connectionToDB(); 
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    credentials: true
+}));
 
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan("dev")); 
 }
 
+// const limiter = rateLimit({
+//     windowMs: 1 * 60 * 1000, // 1 minutes
+//     max: 16, 
+//     message: "Too many requests from this IP, please try again after some time"
+// });
+const checkAuthenticated = (req, res, next) => {
+    if(req.isAuthenticated()){
+        return next(); 
+    }
+    res.redirect("http://localhost:3000/login");
+}
+//app.use(limiter);
+
 app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
     next();
  });
-
 
 // Middleware 
 app.use(express.json()); 
@@ -49,24 +67,15 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user, done)=>{
-    done(null, user.id);
-})
-
-passport.deserializeUser((id, done)=>{
-    userdb.findById(id).then(user => {
-        done(null, user)
-    })
-})
-
 passport.use(
-        new GoogleStrategy({
+        new OAuth2Strategy.Strategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: process.env.GOOGLE_CALLBACK_URL, 
         scope: ["profile", "email"]
     }, 
     async (accessToken, refreshToken, profile, done) => {
+        console.log("Profile: ", profile); 
         const existingUser = await userdb.findOneAndUpdate({googleId: profile.id},{
             accessToken, 
             refreshToken, 
@@ -96,6 +105,16 @@ passport.use(
         done(null, newUser);
     }
 ));
+
+passport.serializeUser((user, done)=>{
+    done(null, user.id);
+})
+
+passport.deserializeUser((id, done)=>{
+    userdb.findById(id).then(user => {
+        done(null, user)
+    })
+})
 
 app.use("/auth", auth);
 app.use("/api", apiRoute);
