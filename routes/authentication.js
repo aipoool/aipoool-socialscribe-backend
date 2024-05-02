@@ -34,6 +34,78 @@ router.post("/userdata", async (req, res) => {
     }
 });
 
+/**GENERAL BACKEND ROUTES */
+router.get("/login/success", async (req, res) => {
+  console.log("Request data from login/success : ", req.user); 
+  if(req.user){
+      res.status(200).json({message: "User Login" , user:req.user});
+  }
+  else{
+      res.status(404).json({message: "User Not Authorized"});
+  }
+  // if(req.user){
+  //     //console.log(req.user.accessToken)
+  //     console.log(req.user)
+  //     if(req.user.accessToken){
+  //         res.status(200).json({message: "User Login" , user:req.user});
+  //         console.log(req.user); 
+  //         //const User = req.user;
+  //         // // setting the jwt token 
+  //         // jwt.sign({User}, process.env.JWT_KEY, (err, token) => {
+  //         //     res.status(200);
+  //         //     res.send({User, auth: token});
+  //         // })
+  //     }
+      
+  // }else {
+  //     res.status(400).json({message: "Not Authorized"}); 
+  // }
+});
+
+router.post("/enter-your-key/success", async (req, res) => {
+  const { id, openAIKey } = req.body;
+  console.log("Path is enter-your-key/success ",id, openAIKey);
+  try {
+    await userdb.findOneAndUpdate(
+      { _id: id },
+      {$set: {
+          openAIKey: openAIKey} },
+      { new: true, useFindAndModify: false }
+    );
+    res.send({ message: 'OpenAI Key updated successfully' });
+  } catch (error) {
+    console.error('Error updating OpenAI Key:', error);
+    res.status(500).send({ message: 'Error updating OpenAI Key' });
+  }
+});
+
+router.get('/logout', async (req, res, next) => {
+
+  // altering the accessToken in db
+  // const { userId } = req.body;
+  // console.log("User Id from the logout: ", userId);
+  // try {
+  //   await userdb.findOneAndUpdate(
+  //     { _id: userId },
+  //     {$set: {
+  //         accessToken: null} },
+  //     { new: true, useFindAndModify: false }
+  //   );
+  //   res.send({ message: 'Access Token successfully updated' });
+  // } catch (error) {
+  //   console.error('Error updating AT:', error);
+  //   res.status(500).send({ message: 'Error updating AT' });
+  // }
+
+  req.logout(function(err) {
+    if (err) {
+       return next(err); 
+    }
+    res.redirect('http://localhost:3000/login');
+  });
+
+});
+
 // router.post("/setCounter", cors() , async(req, res) => {
 //   const {id, count, accessToken} = req.body; 
 //   console.log(req.body); 

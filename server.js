@@ -13,6 +13,7 @@ import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
 import rateLimit from "express-rate-limit";
 
+
 await connectionToDB(); 
 
 const app = express();
@@ -31,12 +32,14 @@ if(process.env.NODE_ENV === 'development'){
 //     max: 16, 
 //     message: "Too many requests from this IP, please try again after some time"
 // });
+
 const checkAuthenticated = (req, res, next) => {
     if(req.isAuthenticated()){
         return next(); 
     }
     res.redirect("http://localhost:3000/login");
 }
+
 //app.use(limiter);
 
 app.use(function(req, res, next) {
@@ -117,7 +120,7 @@ passport.deserializeUser((id, done)=>{
 })
 
 app.use("/auth", auth);
-app.use("/api", apiRoute);
+app.use("/api", checkAuthenticated , apiRoute);
 
 
 // Testing routes 
