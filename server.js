@@ -6,7 +6,6 @@ import passport from "passport";
 import auth from "./routes/authentication.js";
 import apiRoute from "./routes/apiRoute.js"
 import session from "express-session";
-import GoogleStrategy from "passport-google-oauth20";
 import OAuth2Strategy from "passport-google-oauth2";
 import cors from "cors";
 import userdb from "./model/userSchema.js";
@@ -27,11 +26,11 @@ if(process.env.NODE_ENV === 'development'){
     app.use(morgan("dev")); 
 }
 
-// const limiter = rateLimit({
-//     windowMs: 1 * 60 * 1000, // 1 minutes
-//     max: 16, 
-//     message: "Too many requests from this IP, please try again after some time"
-// });
+const limiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minutes
+    max: 10, 
+    message: "Too many requests from this IP, please try again after some time"
+});
 
 const checkAuthenticated = (req, res, next) => {
     if(req.isAuthenticated()){
@@ -40,7 +39,7 @@ const checkAuthenticated = (req, res, next) => {
     res.redirect("http://localhost:3000/login");
 }
 
-//app.use(limiter);
+app.use(limiter);
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, OPTIONS');
@@ -119,7 +118,7 @@ passport.deserializeUser((id, done)=>{
     })
 })
 
-app.use("/auth", auth);
+app.use("/auth" , auth);
 app.use("/api", checkAuthenticated , apiRoute);
 
 
