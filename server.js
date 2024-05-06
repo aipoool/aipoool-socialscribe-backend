@@ -17,7 +17,10 @@ await connectionToDB();
 
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://socialscribe-aipoool.onrender.com'],
+    origin: ['http://localhost:3000', 
+            'https://socialscribe-aipoool.onrender.com', 
+            'chrome-extension://dnjmipaneoddchfeamgdabpiomihncii', 
+            ],
     methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
     credentials: true
 }));
