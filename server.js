@@ -40,7 +40,7 @@ const checkAuthenticated = (req, res, next) => {
     if(req.isAuthenticated()){
         return next(); 
     }
-    res.redirect("https://socialscribe-aipoool.onrender.com/login");
+    res.redirect("http://localhost:3000/login");
 }
 
 app.use(limiter);

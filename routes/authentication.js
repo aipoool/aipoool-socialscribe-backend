@@ -14,8 +14,8 @@ router.get("/test", (req, res) => {
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/google/callback", passport.authenticate("google", 
 { 
-    failureRedirect: "https://socialscribe-aipoool.onrender.com/login", 
-    successRedirect: "https://socialscribe-aipoool.onrender.com/enter-your-key"
+    failureRedirect: "http://localhost:3000/login", 
+    successRedirect: "http://localhost:3000/enter-your-key"
 }));
 
 router.post("/userdata", async (req, res) => {
@@ -85,7 +85,7 @@ router.get('/logout', async (req, res, next) => {
     if (err) {
        return next(err); 
     }
-    res.redirect('https://socialscribe-aipoool.onrender.com/login');
+    res.redirect('http://localhost:3000/login');
   });
 
 });
