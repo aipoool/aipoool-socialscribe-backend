@@ -35,13 +35,13 @@ router.post("/userdata", async (req, res) => {
 });
 
 /**GENERAL BACKEND ROUTES */
-router.post("/login/success", async (req, res) => {
+router.get("/login/success", async (req, res) => {
   console.log("Request data from login/success : ", req.user); 
   if(req.user){
       res.status(200).json({message: "User Login" , user:req.user});
   }
   else{
-      res.status(404).json({message: "User Not Authorized"});
+      res.status(403).json({message: "User Not Authorized"});
   }
   // if(req.user){
   //     //console.log(req.user.accessToken)
