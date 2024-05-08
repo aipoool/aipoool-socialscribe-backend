@@ -6,7 +6,7 @@ import passport from "passport";
 import auth from "./routes/authentication.js";
 import apiRoute from "./routes/apiRoute.js"
 import session from "express-session";
-import OAuth2Strategy from "passport-google-oauth2";
+import OAuth2Strategy from "passport-google-oauth20";
 import cors from "cors";
 import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
@@ -16,25 +16,23 @@ import rateLimit from "express-rate-limit";
 await connectionToDB(); 
 
 const app = express();
-// app.use(cors({
-//     origin: ['http://localhost:3000', 
-//             'https://socialscribe-aipoool.onrender.com', 
-//             'chrome-extension://dnjmipaneoddchfeamgdabpiomihncii', 
-//             ],
-//     methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
-//     credentials: true
-// }));
-app.use(cors()); 
+
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
+    credentials: true
+}));
+
 
 app.use(session({
     secret: process.env.SECRET_SESSION,
     resave: false, //we dont want to save a session if nothing is modified
     saveUninitialized: false, //dont create a session until something is stored
-    cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      secure: true, //Enable when deployment OR when not using localhost, this wont work without https
-      sameSite: "none", //Enable when deployment OR when not using localhost, We're not on the same site, we're using different site so the cookie need to effectively transfer from Backend to Frontend
-    },
+    // cookie: {
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    //   secure: true, //Enable when deployment OR when not using localhost, this wont work without https
+    //   sameSite: "none", //Enable when deployment OR when not using localhost, We're not on the same site, we're using different site so the cookie need to effectively transfer from Backend to Frontend
+    // },
   }));
 
 if(process.env.NODE_ENV === 'development'){
@@ -51,7 +49,7 @@ const checkAuthenticated = (req, res, next) => {
     if(req.isAuthenticated()){
         return next(); 
     }
-    res.redirect("http://localhost:3000/login");
+    res.redirect("https://socialscribe-aipoool.onrender.com/login");
 }
 
 app.use(limiter);
@@ -73,11 +71,11 @@ app.use(express.urlencoded({extended: false}));
  * This session is used to encrypt the user data 
  * Similar to jwt token services
  **/
-app.use(session({
-    secret: process.env.SECRET_SESSION,
-    resave: false,
-    saveUninitialized: true
-}))
+// app.use(session({
+//     secret: process.env.SECRET_SESSION,
+//     resave: false,
+//     saveUninitialized: true
+// }))
 
 
 // setup passport 
@@ -99,9 +97,6 @@ passport.use(
             googleId: profile.id, 
             userName: profile.displayName, 
             email: profile.emails[0].value,
-            isVerified: profile.emails[0].verified,
-            openAIKey: profile.openAIKey, 
-            buttonCounts: profile.buttonCounts
         })
 
         if(existingUser){
@@ -114,9 +109,6 @@ passport.use(
             googleId: profile.id, 
             userName: profile.displayName, 
             email: profile.emails[0].value,
-            isVerified: profile.emails[0].verified,
-            openAIKey: profile.openAIKey, 
-            buttonCounts: profile.buttonCounts
             }).save(); 
         
         done(null, newUser);
