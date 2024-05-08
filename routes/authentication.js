@@ -18,23 +18,7 @@ router.get("/google/callback", passport.authenticate("google",
     successRedirect: "http://localhost:3000/enter-your-key"
 }));
 
-router.post("/userdata", async (req, res) => {
-    const { email, openAIKey } = req.body;
-    //console.log("Path is enter-your-key/success ",email, openAIKey);
-    try {
-      await userdb.findOneAndUpdate(
-        { email: email },
-        { openAIKey: openAIKey },
-        { new: true }
-      );
-      res.send({ message: 'OpenAI Key updated successfully' });
-    } catch (error) {
-      console.error('Error updating OpenAI Key:', error);
-      res.status(500).send({ message: 'Error updating OpenAI Key' });
-    }
-});
 
-/**GENERAL BACKEND ROUTES */
 router.get("/login/success", async (req, res) => {
   console.log("Request data from login/success : ", req.user); 
   if(req.user){
