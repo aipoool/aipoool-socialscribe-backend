@@ -18,7 +18,7 @@ await connectionToDB();
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://socialscribe-aipoool.onrender.com'],
     methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
     credentials: true
 }));
@@ -28,11 +28,11 @@ app.use(session({
     secret: process.env.SECRET_SESSION,
     resave: false, //we dont want to save a session if nothing is modified
     saveUninitialized: false, //dont create a session until something is stored
-    // cookie: {
-    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    //   secure: true, //Enable when deployment OR when not using localhost, this wont work without https
-    //   sameSite: "none", //Enable when deployment OR when not using localhost, We're not on the same site, we're using different site so the cookie need to effectively transfer from Backend to Frontend
-    // },
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: true, //Enable when deployment OR when not using localhost, this wont work without https
+      sameSite: "none", //Enable when deployment OR when not using localhost, We're not on the same site, we're using different site so the cookie need to effectively transfer from Backend to Frontend
+    },
   }));
 
 if(process.env.NODE_ENV === 'development'){
