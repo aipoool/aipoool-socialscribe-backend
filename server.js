@@ -23,7 +23,7 @@ app.use(cors({
     credentials: true
 }));
 
-
+app.set('trust proxy', 1);
 app.use(session({
     secret: process.env.SECRET_SESSION,
     resave: false, //we dont want to save a session if nothing is modified
