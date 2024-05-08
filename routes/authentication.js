@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Testing routes 
 router.get("/test", (req, res) => {
-  res.json({Hi: "This is the AUTH Route"}); 
+  res.json({Hi: "This is the AUTH Route, after the edits have been made "}); 
 })
 
 
