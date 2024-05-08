@@ -205,7 +205,7 @@ app.use("/api", checkAuthenticated , apiRoute);
 
 // Testing routes 
 app.get("/test", (req, res) => {
-    res.json({Hi: "This is a testing message"}); 
+    res.json({Hi: "This is a... testing message"}); 
 })
 
 const PORT = process.env.PORT || 1997; 
