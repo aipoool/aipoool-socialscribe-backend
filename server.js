@@ -16,9 +16,11 @@ import rateLimit from "express-rate-limit";
 await connectionToDB(); 
 
 const app = express();
+// Middleware 
+app.use(express.json()); 
 
 app.use(cors({
-    origin: 'https://socialscribe-aipoool.onrender.com',
+    origin: 'http://localhost:3000',
     methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
     credentials: true
 }));
@@ -29,8 +31,8 @@ app.use(session({
     resave: false, //we dont want to save a session if nothing is modified
     saveUninitialized: false, //dont create a session until something is stored
     cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      secure: true, //Enable when deployment OR when not using localhost, this wont work without https
+      maxAge: 1000, // 7 days
+      secure: "auto",
       sameSite: "none", //Enable when deployment OR when not using localhost, We're not on the same site, we're using different site so the cookie need to effectively transfer from Backend to Frontend
     },
   }));
@@ -59,12 +61,6 @@ app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
     next();
  });
-
-// Middleware 
-app.use(express.json()); 
-
-// URL Encoded payloads 
-app.use(express.urlencoded({extended: false}));
 
 // setup session 
 /**
