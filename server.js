@@ -10,7 +10,7 @@ import OAuth2Strategy from "passport-google-oauth20";
 import cors from "cors";
 import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
-import {postChatGPTMessage} from '../generateComment.js';
+import {postChatGPTMessage} from './generateComment.js';
 import rateLimit from "express-rate-limit";
 
 
