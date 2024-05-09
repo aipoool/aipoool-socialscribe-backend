@@ -196,13 +196,13 @@ passport.deserializeUser((id, done)=>{
   });
 
   // Testing routes 
-router.get("/test", (req, res) => {
+api.get("/api/test", (req, res) => {
     res.json({Hi: "This is the API Route"}); 
 })
 
 /**OPENAI API ROUTES */
-router.options("/generate-response" , cors()); 
-router.post("/generate-response", cors() , async (req, res) => {
+api.options("/api/generate-response" , cors()); 
+api.post("/api/generate-response", cors() , async (req, res) => {
     const {post, tone, openAIKey} = req.body; 
     
     try{
@@ -216,7 +216,7 @@ router.post("/generate-response", cors() , async (req, res) => {
 })
 
 
-router.post("/setCounter", cors() , async(req, res) => {
+api.post("/api/setCounter", cors() , async(req, res) => {
     const {id, count, accessToken} = req.body; 
     console.log(req.body); 
   
@@ -239,7 +239,7 @@ router.post("/setCounter", cors() , async(req, res) => {
 });
   
   
-  router.post("/getCounter", cors() , async(req, res) => {
+  api.post("/api/getCounter", cors() , async(req, res) => {
       const {id, accessToken} = req.body; 
       try{
           if(accessToken){
@@ -257,7 +257,7 @@ router.post("/setCounter", cors() , async(req, res) => {
 
 
 //////////////////////////////////////////////////////////////////////
-app.use("/api", checkAuthenticated , apiRoute);
+//app.use("/api", checkAuthenticated , apiRoute);
 
 
 // Testing routes 
