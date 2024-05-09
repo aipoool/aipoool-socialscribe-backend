@@ -10,6 +10,7 @@ import OAuth2Strategy from "passport-google-oauth20";
 import cors from "cors";
 import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
+import {postChatGPTMessage} from '../generateComment.js';
 import rateLimit from "express-rate-limit";
 
 
@@ -196,13 +197,13 @@ passport.deserializeUser((id, done)=>{
   });
 
   // Testing routes 
-api.get("/api/test", (req, res) => {
+app.get("/api/test", (req, res) => {
     res.json({Hi: "This is the API Route"}); 
 })
 
 /**OPENAI API ROUTES */
-api.options("/api/generate-response" , cors()); 
-api.post("/api/generate-response", cors() , async (req, res) => {
+app.options("/api/generate-response" , cors()); 
+app.post("/api/generate-response" , async (req, res) => {
     const {post, tone, openAIKey} = req.body; 
     
     try{
@@ -216,7 +217,7 @@ api.post("/api/generate-response", cors() , async (req, res) => {
 })
 
 
-api.post("/api/setCounter", cors() , async(req, res) => {
+app.post("/api/setCounter", async(req, res) => {
     const {id, count, accessToken} = req.body; 
     console.log(req.body); 
   
@@ -239,7 +240,7 @@ api.post("/api/setCounter", cors() , async(req, res) => {
 });
   
   
-  api.post("/api/getCounter", cors() , async(req, res) => {
+  app.post("/api/getCounter", async(req, res) => {
       const {id, accessToken} = req.body; 
       try{
           if(accessToken){
