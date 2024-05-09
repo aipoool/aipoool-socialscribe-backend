@@ -52,7 +52,6 @@ const checkAuthenticated = (req, res, next) => {
     if(req.isAuthenticated()){
         return next(); 
     }
-    res.redirect("https://socialscribe-aipoool.onrender.com/login");
 }
 
 app.use(limiter);
