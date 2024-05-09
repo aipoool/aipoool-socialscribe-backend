@@ -17,7 +17,7 @@ await connectionToDB();
 
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000','chrome-extension://dnjmipaneoddchfeamgdabpiomihncii'],
     methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
     credentials: true
 }));
