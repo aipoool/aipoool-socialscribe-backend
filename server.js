@@ -134,8 +134,8 @@ passport.deserializeUser((id, done)=>{
   app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
   app.get("/auth/google/callback", passport.authenticate("google", 
   { 
-      failureRedirect: "http://localhost:3000/login", 
-      successRedirect: "http://localhost:3000/enter-your-key"
+      failureRedirect: "https://socialscribe-aipoool.onrender.com/login", 
+      successRedirect: "https://socialscribe-aipoool.onrender.com/enter-your-key"
   }));
   
   
@@ -191,7 +191,7 @@ passport.deserializeUser((id, done)=>{
       if (err) {
          return next(err); 
       }
-      res.redirect('http://localhost:3000/login');
+      res.redirect('https://socialscribe-aipoool.onrender.com/login');
     });
   
   });
