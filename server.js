@@ -16,15 +16,16 @@ import rateLimit from "express-rate-limit";
 await connectionToDB(); 
 
 const app = express();
-app.use(cors()); 
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
+    credentials: true
+}));
+
 // Middleware 
 app.use(express.json()); 
 
-// app.use(cors({
-//     origin: 'http://localhost:3000',
-//     methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
-//     credentials: true
-// }));
+
 
 
 app.set('trust proxy', 1);
