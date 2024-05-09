@@ -16,14 +16,16 @@ import rateLimit from "express-rate-limit";
 await connectionToDB(); 
 
 const app = express();
+app.use(cors()); 
 // Middleware 
 app.use(express.json()); 
 
-app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
-    credentials: true
-}));
+// app.use(cors({
+//     origin: 'http://localhost:3000',
+//     methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
+//     credentials: true
+// }));
+
 
 app.set('trust proxy', 1);
 app.use(session({
@@ -141,7 +143,8 @@ passport.deserializeUser((id, done)=>{
   app.get("/auth/login/success", async (req, res) => {
     console.log("Request data from login/success : ", req.user); 
     if(req.user){
-        //res.status(200).json({message: "User Login" , user:req.user});
+        res.status(200).json({message: "User Login" , user:req.user});
+        //res.send({user:req.user});
         console.log('Entered the login success route..');
     }
     else{
