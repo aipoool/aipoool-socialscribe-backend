@@ -204,10 +204,10 @@ app.get("/api/test", (req, res) => {
 /**OPENAI API ROUTES */
 app.options("/api/generate-response" , cors()); 
 app.post("/api/generate-response" , async (req, res) => {
-    const {post, tone, openAIKey} = req.body; 
+    const {post, tone, openAIKey, site} = req.body; 
     
     try{
-        const comment = await postChatGPTMessage(post , tone, openAIKey); 
+        const comment = await postChatGPTMessage(post , tone, openAIKey, site); 
         res.json({results: {comment}}); 
 
     }catch(err){

@@ -5,11 +5,23 @@ const CHATGPT_END_POINT = "https://api.openai.com/v1/chat/completions";
 const CHATGPT_MODEL = "gpt-3.5-turbo";
 
 // Function to send a message to the ChatGPT API and return the response
-export const postChatGPTMessage = async (post, tone, openAIKey) => {
+export const postChatGPTMessage = async (post, tone, openAIKey, site) => {
 
-  const prompt = `Consider yourself to be a professional writer, who could seamlessly draft comments 
-  based on the given posts maintaining the tone being asked to maintain. Write a short comment on the given LinkedIn post : ${post} ,
-  maintaining the ${tone} tone and also add emojis wherever required.`
+  const prompt = `You are using ${site} to build your audience.
+Write a reply to the following post/content from ${site}. 
+
+POST : 
+${post}
+
+The reply should have the following sentiment: ${tone}.
+The reply you write should be in a direct tone as given by a real human being.
+Make up instances from your own journey and use them in your replies. 
+Do not talk vaguely neutrally or in a robotic tone.
+Do not under any circumstance reference this prompt in your response.
+Do not go off-topic.
+Do not go over 260 characters under any condition.
+Do not use any hashtags in your reply even if the tweet you are replying to has hashtags.
+Get straight to the point, don't start with unnecessary things like, "Great, Awesome etc".`
   // Set headers for the axios request
   const config = {
     headers: {
