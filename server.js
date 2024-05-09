@@ -142,7 +142,7 @@ passport.deserializeUser((id, done)=>{
     console.log("Request data from login/success : ", req.user); 
     if(req.user){
         //res.status(200).json({message: "User Login" , user:req.user});
-        console.log('Entered the login success route');
+        console.log('Entered the login success route..');
     }
     else{
         res.status(403).json({message: "User Not Authorized"});
