@@ -28,7 +28,7 @@ app.use(cors({
 app.set('trust proxy', 1);
 app.use(session({
     secret: process.env.SECRET_SESSION,
-    resave: false, //we dont want to save a session if nothing is modified
+    resave: true, //we dont want to save a session if nothing is modified
     saveUninitialized: false, //dont create a session until something is stored
     cookie: {
       maxAge: 1000, // 7 days
