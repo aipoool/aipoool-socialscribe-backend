@@ -5,7 +5,6 @@ import morgan from "morgan";
 import passport from "passport";
 import auth from "./routes/authentication.js";
 import apiRoute from "./routes/apiRoute.js"
-import {postChatGPTMessage} from '../generateComment.js';
 import session from "express-session";
 import OAuth2Strategy from "passport-google-oauth20";
 import cors from "cors";
@@ -49,11 +48,11 @@ const limiter = rateLimit({
     message: "Too many requests from this IP, please try again after some time--.."
 });
 
-// const checkAuthenticated = (req, res, next) => {
-//     if(req.isAuthenticated()){
-//         return next(); 
-//     }
-// }
+const checkAuthenticated = (req, res, next) => {
+    if(req.isAuthenticated()){
+        return next(); 
+    }
+}
 
 app.use(limiter);
 
@@ -197,68 +196,68 @@ passport.deserializeUser((id, done)=>{
   });
 
   // Testing routes 
-    app.get("/api/test", (req, res) => {
-        res.json({Hi: "This is the API Route"}); 
-    })
+router.get("/test", (req, res) => {
+    res.json({Hi: "This is the API Route"}); 
+})
 
-    /**OPENAI API ROUTES */
-    router.options("/api/generate-response" , cors()); 
-    app.post("/api/generate-response", cors() , async (req, res) => {
-        const {post, tone, openAIKey} = req.body; 
-        
-        try{
-            const comment = await postChatGPTMessage(post , tone, openAIKey); 
-            res.json({results: {comment}}); 
+/**OPENAI API ROUTES */
+router.options("/generate-response" , cors()); 
+router.post("/generate-response", cors() , async (req, res) => {
+    const {post, tone, openAIKey} = req.body; 
+    
+    try{
+        const comment = await postChatGPTMessage(post , tone, openAIKey); 
+        res.json({results: {comment}}); 
 
-        }catch(err){
-            console.log(err); 
-            res.status(500).json({error: err.message});  
+    }catch(err){
+        console.log(err); 
+        res.status(500).json({error: err.message});  
+    }
+})
+
+
+router.post("/setCounter", cors() , async(req, res) => {
+    const {id, count, accessToken} = req.body; 
+    console.log(req.body); 
+  
+    try{
+        if(accessToken){
+          const updatedUser = await userdb.findOneAndUpdate(
+            {_id: id}, 
+            {$set: {buttonCounts: count}}, 
+            {new: true, useFindAndModify: false}
+          );
+          console.log("Updated User: ", updatedUser); 
+  
+          res.send({message: 'Counter updated successfully'});
         }
-    })
-
-
-    app.post("/api/setCounter", cors() , async(req, res) => {
-        const {id, count, accessToken} = req.body; 
-        console.log(req.body); 
-    
-        try{
-            if(accessToken){
-            const updatedUser = await userdb.findOneAndUpdate(
-                {_id: id}, 
-                {$set: {buttonCounts: count}}, 
-                {new: true, useFindAndModify: false}
-            );
-            console.log("Updated User: ", updatedUser); 
-    
-            res.send({message: 'Counter updated successfully'});
-            }
-    
-        }catch (error) {
-            console.error('Error updating Counter:', error);
-            res.status(500).send({ message: 'Error updating Counter' });
+  
+    }catch (error) {
+        console.error('Error updating Counter:', error);
+        res.status(500).send({ message: 'Error updating Counter' });
+      }
+});
+  
+  
+  router.post("/getCounter", cors() , async(req, res) => {
+      const {id, accessToken} = req.body; 
+      try{
+          if(accessToken){
+            const response = await userdb.findById(id);
+            console.log("COUNTER GET :: : ", response.buttonCounts);
+            res.status(200).json({count:response.buttonCounts});
+          }
+  
+      }catch (error) {
+          console.error('Error getting Counter:', error);
+          res.status(500).send({ message: 'Error getting Counter' });
         }
-    });
-    
-    
-    app.post("/api/getCounter", cors() , async(req, res) => {
-        const {id, accessToken} = req.body; 
-        try{
-            if(accessToken){
-                const response = await userdb.findById(id);
-                console.log("COUNTER GET :: : ", response.buttonCounts);
-                res.status(200).json({count:response.buttonCounts});
-            }
-    
-        }catch (error) {
-            console.error('Error getting Counter:', error);
-            res.status(500).send({ message: 'Error getting Counter' });
-            }
-    });
+});
 
 
 
 //////////////////////////////////////////////////////////////////////
-//app.use("/api", checkAuthenticated , apiRoute);
+app.use("/api", checkAuthenticated , apiRoute);
 
 
 // Testing routes 
