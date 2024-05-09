@@ -17,7 +17,7 @@ await connectionToDB();
 
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:3000','https://aipoool-socialscribe-backend.vercel.app','chrome-extension://dnjmipaneoddchfeamgdabpiomihncii'],
+    origin: ['http://localhost:3000','https://socialscribe-aipoool.onrender.com','chrome-extension://dnjmipaneoddchfeamgdabpiomihncii'],
     methods: ['GET','PUT','POST', 'DELETE','OPTIONS'],
     credentials: true
 }));
