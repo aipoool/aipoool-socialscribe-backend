@@ -246,7 +246,13 @@ app.post("/api/setCounter", async(req, res) => {
           if(accessToken){
             const response = await userdb.findById(id);
             console.log("COUNTER GET :: : ", response.buttonCounts);
-            res.status(200).json({count:response.buttonCounts});
+            console.log("TOTAL COUNT :: : ", response.totalCount);
+            res.status(200).json(
+                {
+                    count:response.buttonCounts,
+                    totalCount:response.totalCount
+                }
+            );
           }
   
       }catch (error) {

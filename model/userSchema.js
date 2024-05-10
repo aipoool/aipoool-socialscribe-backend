@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
     buttonCounts: {
         type: Number,
         default: 0
+    },
+    totalCount: {
+        type: Number,
+        default: 10
     }
 },{timestamps:true});
 
