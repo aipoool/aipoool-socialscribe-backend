@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Configuration, OpenAIApi } from "openai-edge"
-let openai;
+
 
 // // Define constants
 // const CHATGPT_END_POINT = "https://api.openai.com/v1/chat/completions";
@@ -81,7 +81,7 @@ Get straight to the point, don't start with unnecessary things like, "Great, Awe
 
   // Setup the configurations 
   const configuration = new Configuration({ apiKey: openAIKey});
-  openai = new OpenAIApi(configuration);
+  const openai = new OpenAIApi(configuration);
 
   // Create the message object to send to the API
   const userMessage = { role: "user", content: prompt };
@@ -94,7 +94,7 @@ Get straight to the point, don't start with unnecessary things like, "Great, Awe
       frequency_penalty: 0,
       presence_penalty: 0,
       top_p: 1,
-      messages: [{ role: "user", content: prompt }], // {role: "assistant", content: ''}
+      messages: [{role: "system", content: prompt}, {role: "user", content: prompt}], // {role: "assistant", content: ''}
   }, { timeout: 60000 });
 
     // Extract the message content from the API response
