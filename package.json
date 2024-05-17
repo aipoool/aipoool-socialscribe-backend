@@ -34,6 +34,7 @@
     "mongoose": "^8.3.2",
     "morgan": "^1.10.0",
     "node": "^22.1.0",
+    "openai": "^4.47.1",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
     "passport-google-oauth20": "^2.0.0",
