@@ -1,5 +1,5 @@
 import axios from "axios";
-const { Configuration, OpenAIApi } = require('openai');
+import { Configuration, OpenAIApi } from "openai-edge"
 let openai;
 
 // // Define constants
