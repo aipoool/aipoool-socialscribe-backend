@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Configuration, OpenAIApi } from "openai-edge"
+import OpenAI from "openai";
 
 
 // // Define constants
@@ -79,26 +79,19 @@ Try to identify the language the post is written in, and try to reply in the sam
 Do not use any hashtags in your reply even if the tweet you are replying to has hashtags.
 Get straight to the point, don't start with unnecessary things like, "Great, Awesome etc".`
 
-  // Setup the configurations 
-  const configuration = new Configuration({ apiKey: openAIKey});
-  const openai = new OpenAIApi(configuration);
 
-  // Create the message object to send to the API
-  const userMessage = { role: "user", content: prompt };
+  const openai = new OpenAI({ apiKey: openAIKey});
+
 
   try {
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
+      messages: [{ role: "system", content: "You are a helpful assistant." },
+      { role: "user", content: prompt }],
       model: "gpt-3.5-turbo",
-      temperature: 0.888,
-      max_tokens: 2048,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      top_p: 1,
-      messages: [{role: "system", content: "You are a helpful assistant"}, {role: "user", content: prompt}], // {role: "assistant", content: ''}
-  }, { timeout: 60000 });
+    }, { timeout: 60000 });
 
     // Extract the message content from the API response
-    const message = response?.data?.choices[0]?.message.content;
+    const message = response.choices[0]?.message.content;
     console.log(message)
 
     // Return the message content
