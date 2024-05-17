@@ -92,7 +92,7 @@ Get straight to the point, don't start with unnecessary things like, "Great, Awe
 
     // Extract the message content from the API response
     const message = response.choices[0]?.message.content;
-    console.log(message)
+    console.log(response)
 
     // Return the message content
     return message;
