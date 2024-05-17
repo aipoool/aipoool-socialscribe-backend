@@ -94,11 +94,12 @@ Get straight to the point, don't start with unnecessary things like, "Great, Awe
       frequency_penalty: 0,
       presence_penalty: 0,
       top_p: 1,
-      messages: [{role: "system", content: prompt}, {role: "user", content: prompt}], // {role: "assistant", content: ''}
+      messages: [{role: "system", content: "You are a helpful assistant"}, {role: "user", content: prompt}], // {role: "assistant", content: ''}
   }, { timeout: 60000 });
 
     // Extract the message content from the API response
     const message = response?.data?.choices[0]?.message.content;
+    console.log(message)
 
     // Return the message content
     return message;
