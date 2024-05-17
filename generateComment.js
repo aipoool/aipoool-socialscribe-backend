@@ -53,7 +53,7 @@ Get straight to the point, don't start with unnecessary things like, "Great, Awe
     console.error("Error with ChatGPT API"); // Log error message
     console.error(error);
 
-    // Return null if an error occurs
+    // Return null if an error
     return null;
   }
 };
