@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Configuration , OpenAIApi } from 'openai';
+const { Configuration, OpenAIApi } = require('openai');
 let openai;
 
 // // Define constants
