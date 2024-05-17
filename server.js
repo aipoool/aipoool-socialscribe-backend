@@ -168,6 +168,17 @@ passport.deserializeUser((id, done)=>{
     // }
   });
   
+  app.post('/auth/userdata', async (req, res) => {
+    const { id } = req.body;
+    try {
+      const user = await userdb.findById(id);
+      res.send({ user });
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+      res.status(500).send({ message: 'Error retrieving user data' });
+    }
+  });
+  
   app.post("/auth/enter-your-key/success", async (req, res) => {
     const { id, openAIKey } = req.body;
     console.log("Path is enter-your-key/success ",id, openAIKey);
