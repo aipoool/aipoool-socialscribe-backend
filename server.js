@@ -301,10 +301,10 @@ app.post('/api/check', async (req, res) => {
       // const models = await openai.listModels();
       const isValid = completion?.choices[0]?.message?.content ? true : false;
       console.log(completion?.choices[0]?.message?.content);
-      res.json(200, { isValid });
+      res.status(200).json({ isValid });
   } catch (error) {
-      console.log(error);
-      res.status(500).json({ error: error.message });
+      console.log(error.message );
+      res.status(500).json({ isValid });
   }
 });
 
