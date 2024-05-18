@@ -169,10 +169,12 @@ passport.deserializeUser((id, done)=>{
   });
   
   app.post('/auth/userdata', async (req, res) => {
-    const { id } = req.body;
+    const { id , accessToken } = req.body;
     try {
-      const user = await userdb.findById({_id: id});
-      res.json({results: {user}}); 
+      if(accessToken){
+        const user = await userdb.findById(id)
+        res.status(200).json({results: user}); 
+      }
     } catch (error) {
       console.error('Error retrieving user data:', error);
       res.status(500).send({ message: 'Error retrieving user data' });
