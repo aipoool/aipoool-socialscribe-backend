@@ -11,7 +11,7 @@ import cors from "cors";
 import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
 import { postChatGPTMessage } from "./generateComment.js";
-import { Configuration, OpenAIApi } from "openai-edge"
+import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
 
 await connectionToDB();
@@ -291,15 +291,17 @@ app.post("/api/getCounter", async (req, res) => {
 app.post('/api/check', async (req, res) => {
   const { key } = req.body;
 
+  const openai = new OpenAI({ apiKey: key });
+
   try {
-      const configuration = new Configuration({
-        apiKey: key,
-      });
-      
-      const openai = new OpenAIApi(configuration);
-      const models = await openai.listModels();
-      console.log(models.data);
-      res.json(models.data);
+      const response = openai.Completion.create({
+        engine: "davinci",
+        prompt: "This is a test.",
+        max_tokens: 5
+    });
+      // const models = await openai.listModels();
+      console.log(response);
+      res.json(response);
   } catch (error) {
       console.log(error);
       res.status(500).json({ error: error.message });
