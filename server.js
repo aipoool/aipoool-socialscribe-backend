@@ -11,6 +11,7 @@ import cors from "cors";
 import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
 import { postChatGPTMessage } from "./generateComment.js";
+import { Configuration, OpenAIApi } from "openai-edge"
 import rateLimit from "express-rate-limit";
 
 await connectionToDB();
@@ -284,6 +285,24 @@ app.post("/api/getCounter", async (req, res) => {
   } catch (error) {
     console.error("Error getting Counter:", error);
     res.status(500).send({ message: "Error getting Counter" });
+  }
+});
+
+app.post('/api/check', async (req, res) => {
+  const { key } = req.body;
+
+  try {
+      const configuration = new Configuration({
+        apiKey: key,
+      });
+      
+      const openai = new OpenAIApi(configuration);
+      const models = await openai.listModels();
+      console.log(models.data);
+      res.json(models.data);
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: error.message });
   }
 });
 
