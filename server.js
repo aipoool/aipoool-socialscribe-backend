@@ -172,7 +172,8 @@ passport.deserializeUser((id, done)=>{
     const { id , accessToken } = req.body;
     try {
       if(accessToken){
-        const user = await userdb.findById(id)
+        const user = await userdb.findById(id);
+        console.log("USER DATA :: : ", user);
         res.status(200).json({results: user}); 
       }
     } catch (error) {
