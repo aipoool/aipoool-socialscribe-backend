@@ -172,7 +172,7 @@ passport.deserializeUser((id, done)=>{
     const { id } = req.body;
     try {
       const user = await userdb.findById(id);
-      res.send({ user });
+      res.json({results: {user}}); 
     } catch (error) {
       console.error('Error retrieving user data:', error);
       res.status(500).send({ message: 'Error retrieving user data' });
