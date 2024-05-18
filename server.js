@@ -305,13 +305,12 @@ app.post('/api/check', async (req, res) => {
       console.log(completion?.choices[0]?.message?.content);
 
       if (isValid) {
-          res.status(200).json({ isValid });
+          res.status(200).json({ isValid: true });
       } else {
-          res.status(200).json({ isValid });
+          res.status(200).json({ isValid: false });
       }
   } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ isValid });
+      res.json({ isValid: false });
   }
 });
 
