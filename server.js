@@ -294,13 +294,12 @@ app.post('/api/check', async (req, res) => {
   const openai = new OpenAI({ apiKey: key });
 
   try {
-      const response = await openai.chat.completions.create({
-        engine: "davinci",
-        prompt: "This is a test.",
-        max_tokens: 5
+    const completion = await openai.chat.completions.create({
+      messages: [{ role: "system", content: "You are a helpful assistant." }],
+      model: "gpt-3.5-turbo",
     });
       // const models = await openai.listModels();
-      console.log(response);
+      console.log(completion.choices[0]);
       res.json(response);
   } catch (error) {
       console.log(error);
