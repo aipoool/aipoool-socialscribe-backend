@@ -177,7 +177,7 @@ passport.deserializeUser((id, done)=>{
         res.status(200).json({results: user}); 
       }
     } catch (error) {
-      console.error('Error retrieving user data:', error);
+      console.error('Error retrieving user data', error);
       res.status(500).send({ message: 'Error retrieving user data' });
     }
   });
