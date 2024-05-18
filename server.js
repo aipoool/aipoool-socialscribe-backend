@@ -294,17 +294,22 @@ app.post('/api/check', async (req, res) => {
   const openai = new OpenAI({ apiKey: key });
 
   try {
-    const completion = await openai.chat.completions.create({
-      messages: [{ role: "system", content: "You are a helpful assistant." }],
-      model: "gpt-3.5-turbo",
-    });
-      // const models = await openai.listModels();
+      const completion = await openai.chat.completions.create({
+          messages: [{ role: "system", content: "Checking the key..." }],
+          model: "gpt-3.5-turbo",
+      });
+
       const isValid = completion?.choices[0]?.message?.content ? true : false;
       console.log(completion?.choices[0]?.message?.content);
-      res.status(200).json({ isValid });
+
+      if (isValid) {
+          res.status(200).json({ isValid: true });
+      } else {
+          res.status(200).json({ isValid: false });
+      }
   } catch (error) {
-      console.log(error.message );
-      res.status(500).json({ isValid });
+      console.log(error.message);
+      res.status(500).json({ isValid: false });
   }
 });
 
