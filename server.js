@@ -299,8 +299,9 @@ app.post('/api/check', async (req, res) => {
       model: "gpt-3.5-turbo",
     });
       // const models = await openai.listModels();
-      console.log(completion.choices[0].content);
-      res.json(200);
+      const isValid = completion?.choices[0]?.message?.content ? true : false;
+      console.log(completion?.choices[0]?.message?.content);
+      res.json(200, { isValid });
   } catch (error) {
       console.log(error);
       res.status(500).json({ error: error.message });
