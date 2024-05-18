@@ -23,6 +23,8 @@ app.use(
       "http://localhost:3000",
       "https://socialscribe-aipoool.onrender.com",
       "chrome-extension://bhnpbgfnodkiohanbolcdkibeibncobf",
+      "https://www.linkedin.com",
+      "https://x.com",
     ],
     methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
     credentials: true,
