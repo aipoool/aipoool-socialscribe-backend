@@ -294,7 +294,7 @@ app.post('/api/check', async (req, res) => {
   const openai = new OpenAI({ apiKey: key });
 
   try {
-      const response = openai.Completion.create({
+      const response = await openai.chat.completions.create({
         engine: "davinci",
         prompt: "This is a test.",
         max_tokens: 5
