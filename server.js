@@ -171,7 +171,7 @@ passport.deserializeUser((id, done)=>{
   app.post('/auth/userdata', async (req, res) => {
     const { id } = req.body;
     try {
-      const user = await userdb.findById(id);
+      const user = await userdb.findById({_id: id});
       res.json({results: {user}}); 
     } catch (error) {
       console.error('Error retrieving user data:', error);
