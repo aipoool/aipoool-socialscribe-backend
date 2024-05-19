@@ -303,7 +303,8 @@ app.post('/api/check', async (req, res) => {
 
       const isValid = completion?.choices[0]?.message?.content ? true : false;
       console.log(completion?.choices[0]?.message?.content);
-      res.status(200).json({ isValid: false });
+      console.log(isValid);
+      res.status(200).json({ isValid });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ isValid: false });
