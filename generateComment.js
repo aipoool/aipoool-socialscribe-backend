@@ -3,7 +3,7 @@ import axios from "axios";
 
 // // Define constants
 const CHATGPT_END_POINT = "https://api.openai.com/v1/chat/completions";
-const CHATGPT_MODEL = "gpt-4o";
+const CHATGPT_MODEL = "gpt-3.5-turbo";
 
 // Function to send a message to the ChatGPT API and return the response
 export const postChatGPTMessage = async (post, tone, openAIKey, site) => {
