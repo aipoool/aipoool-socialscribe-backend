@@ -3,8 +3,6 @@ import chalk from "chalk";
 import express from "express";
 import morgan from "morgan";
 import passport from "passport";
-import auth from "./routes/authentication.js";
-import apiRoute from "./routes/apiRoute.js";
 import session from "express-session";
 import OAuth2Strategy from "passport-google-oauth20";
 import cors from "cors";
@@ -13,8 +11,9 @@ import connectionToDB from "./db/connection.js";
 import { postChatGPTMessage } from "./generateComment.js";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
+import Stripe from 'stripe';
 
-const stripe = require('stripe')('sk_test_51NkpdNSGYG2CnOjsV3151jZbzQiXu49FvN4o2XjpEU6pdZuW8A4AXX9tHE7GTy9ZRzWfxvYPim6cZOaMRJTmNc5n00Gdv4D3MX');
+const stripe = Stripe(process.env.STRIPE_API_KEY)
 
 await connectionToDB();
 
