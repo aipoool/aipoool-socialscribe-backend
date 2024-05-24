@@ -13,7 +13,8 @@ import connectionToDB from "./db/connection.js";
 import { postChatGPTMessage } from "./generateComment.js";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
-import stripe from 'stripe'
+
+const stripe = require('stripe')('sk_test_51NkpdNSGYG2CnOjsV3151jZbzQiXu49FvN4o2XjpEU6pdZuW8A4AXX9tHE7GTy9ZRzWfxvYPim6cZOaMRJTmNc5n00Gdv4D3MX');
 
 await connectionToDB();
 
