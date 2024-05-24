@@ -13,6 +13,7 @@ import connectionToDB from "./db/connection.js";
 import { postChatGPTMessage } from "./generateComment.js";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
+import stripe from 'stripe'
 
 await connectionToDB();
 
@@ -312,8 +313,28 @@ app.post('/api/check', async (req, res) => {
 });
 
 app.post('/api/create-checkout-session', async (req, res) => {
-  const price = req.body; 
+  const {data} = req.body; 
   console.log(price);
+  const lineItems = data.map((data) => ({
+    price_data: {
+      currency: "inr",
+      product_data: {
+        name: data.plan,
+      },
+      unit_amount: data.price * 100,
+    }, 
+    quantity: 1,
+  }));
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: lineItems,
+    mode: 'payment',
+    success_url: 'http://localhost:3000/success',
+    cancel_url: 'http://localhost:3000/cancel',
+  });
+
+  res.json({id:session.id});
 
 })
 
