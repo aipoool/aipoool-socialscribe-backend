@@ -314,7 +314,7 @@ app.post('/api/check', async (req, res) => {
 
 app.post('/api/create-checkout-session', async (req, res) => {
   const {data} = req.body; 
-  console.log(price);
+  console.log(data);
   const lineItems = data.map((data) => ({
     price_data: {
       currency: "inr",
