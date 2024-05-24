@@ -42,6 +42,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.0",
+    "stripe": "^15.8.0",
     "winston": "^3.13.0",
     "winston-daily-rotate-file": "^5.0.0"
   },

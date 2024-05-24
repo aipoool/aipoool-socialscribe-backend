@@ -311,6 +311,12 @@ app.post('/api/check', async (req, res) => {
   }
 });
 
+app.post('/api/create-checkout-session', async (req, res) => {
+  const price = req.body; 
+  console.log(price);
+
+})
+
 //////////////////////////////////////////////////////////////////////
 //app.use("/api", checkAuthenticated , apiRoute);
 
