@@ -6,22 +6,36 @@ import passport from "passport";
 import session from "express-session";
 import OAuth2Strategy from "passport-google-oauth20";
 import cors from "cors";
+import { MongoClient, ServerApiVersion } from "mongodb";
 import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
 import { postChatGPTMessage } from "./generateComment.js";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
-import Stripe from 'stripe';
+import Stripe from "stripe";
 
-const stripe = Stripe(process.env.STRIPE_API_KEY)
+const stripe = Stripe(process.env.STRIPE_API_KEY);
+const endptSecret = process.env.WEBHOOK_SIGNING_SECRET;
 
 await connectionToDB();
+
+const client = new MongoClient(process.env.DATABASE, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+// Connect to the client
+client.connect();
 
 const app = express();
 app.use(
   cors({
     origin: [
       "http://localhost:3000",
+      "http://localhost:3001",
       "https://socialscribe-aipoool.onrender.com",
       "chrome-extension://bhnpbgfnodkiohanbolcdkibeibncobf",
       "https://www.linkedin.com",
@@ -31,6 +45,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use("/stripe-webhook", express.raw({ type: "application/json" }));
 
 // Middleware
 app.use(express.json());
@@ -61,10 +77,10 @@ const limiter = rateLimit({
 });
 
 const checkAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-};
+  if (req.isAuthenticated()) { return next() }
+  ///res.redirect("https://socialscribe-aipoool.onrender.com/login")
+  res.status(401).json({ error: 'Not authenticated' });
+}
 
 app.use(limiter);
 
@@ -148,6 +164,11 @@ app.get("/auth/test", (req, res) => {
   res.json({ Hi: "This is the AUTH Route, after the edits have been made " });
 });
 
+/**** CHECKING IF WE GET THE DATA IN RETURN ***********/
+app.get('/get-user-data', checkAuthenticated , (req, res) => {
+  res.json({ user: req.user });
+})
+
 // initial google oauth login
 app.get(
   "/auth/google",
@@ -195,7 +216,7 @@ app.post("/auth/userdata", async (req, res) => {
     if (accessToken) {
       const user = await userdb.findById(id);
       console.log("USER DATA :: : ", user);
-      console.log({ results: user }); 
+      console.log({ results: user });
       res.status(200).json({ results: user });
     }
   } catch (error) {
@@ -291,55 +312,270 @@ app.post("/api/getCounter", async (req, res) => {
   }
 });
 
-app.post('/api/check', async (req, res) => {
+app.post("/api/check", async (req, res) => {
   const { key } = req.body;
 
   const openai = new OpenAI({ apiKey: key });
 
   try {
-      const completion = await openai.chat.completions.create({
-          messages: [{ role: "system", content: "Checking the key..." }],
-          model: "gpt-3.5-turbo",
-      });
+    const completion = await openai.chat.completions.create({
+      messages: [{ role: "system", content: "Checking the key..." }],
+      model: "gpt-3.5-turbo",
+    });
 
-      const isValid = completion?.choices[0]?.message?.content ? true : false;
-      console.log(isValid);
-      console.log({ isValid });
-      res.status(200).json({ isValid });
+    const isValid = completion?.choices[0]?.message?.content ? true : false;
+    console.log(isValid);
+    console.log({ isValid });
+    res.status(200).json({ isValid });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ isValid: false });
   }
 });
 
-app.post('/api/create-checkout-session', async (req, res) => {
-  const {data} = req.body; 
+app.post("/api/create-checkout-session", async (req, res) => {
+  /** ACCEPT THE EMAIL VIA BODY TO HARDCODE IT INTO THE PAYMENT BLANK */
+  const { data } = req.body;
+  const userEmail = data.userEmail;
+  const mongoId = data.userId;
+  const typeOfPlan = data.type;
+  let customer;
+  const auth0UserId = userEmail;
   console.log(data);
-  const lineItems = data.map((data) => ({
-    price_data: {
-      currency: "inr",
-      product_data: {
-        name: data.plan,
-      },
-      unit_amount: data.price * 100,
-    }, 
-    quantity: 1,
-  }));
+  console.log(`${data.plan} ::::: ${data.price} :::::: ${mongoId}`);
 
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: lineItems,
-    mode: 'payment',
-    success_url: 'http://localhost:3000/success',
-    cancel_url: 'http://localhost:3000/cancel',
+  /** CHECK IF THE CUSTOMER IS PRESENT IN THE STRIPE CUSTOMER'S LIST */
+  const existingCustomers = await stripe.customers.list({
+    email: userEmail,
+    limit: 1,
   });
 
-  res.json({id:session.id});
+  /** CHECK IF THERE IS SOME ACTIVE SUBSCRIPTION ALREADY */
+  if (existingCustomers.data.length > 0) {
+    // Customer already exists
+    customer = existingCustomers.data[0];
 
-})
+    // Check if the customer already has an active subscription
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customer.id,
+      status: "active",
+      limit: 1,
+    });
 
-//////////////////////////////////////////////////////////////////////
-//app.use("/api", checkAuthenticated , apiRoute);
+    if (subscriptions.data.length > 0) {
+      // Customer already has an active subscription, send them to biiling portal to manage subscription
+
+      const stripeSession = await stripe.billingPortal.sessions.create({
+        customer: customer.id,
+        return_url: "http://localhost:3000/success",
+      });
+      //return res.status(409).json({ redirectUrl: stripeSession.url });
+
+      return res.json({ redirectUrl: stripeSession.url });
+    }
+  } else {
+    // No customer found, create a new one
+    customer = await stripe.customers.create({
+      email: userEmail,
+      metadata: {
+        userId: auth0UserId, // Replace with actual Auth0 user ID
+        mongoId: mongoId,
+        type: typeOfPlan,
+      },
+    });
+  }
+
+  console.log(`Customer::::::`);
+  console.log(customer);
+
+  const lineItems = [
+    {
+      price_data: {
+        currency: "inr",
+        product_data: {
+          name: data.plan,
+          description: `This is the ${data.plan} version.`,
+        },
+        unit_amount: data.price * 100,
+        recurring: {
+          interval: "month",
+        },
+      },
+      quantity: 1,
+    },
+  ];
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: lineItems,
+    billing_address_collection: "auto",
+    mode: "subscription",
+    success_url: "http://localhost:3000/success",
+    cancel_url: "http://localhost:3000/cancel",
+    metadata: {
+      userId: auth0UserId,
+      mongoId: mongoId,
+      type: typeOfPlan,
+    },
+    customer: customer.id,
+  });
+
+  res.json({ id: session.id });
+});
+
+// webhook for subscription
+app.post("/stripe-webhook", async (req, res) => {
+  let event = req.body;
+
+  if (endptSecret) {
+    // Get the signature sent by Stripe
+    const signature = req.headers["stripe-signature"];
+    try {
+      event = stripe.webhooks.constructEvent(req.body, signature, endptSecret);
+    } catch (err) {
+      console.log(`⚠️  Webhook signature verification failed.`, err.message);
+      return res.sendStatus(400);
+    }
+  }
+
+  if (event.type === "invoice.payment_succeeded") {
+    const invoice = event.data.object;
+
+    // On payment successful, get subscription and customer details
+    const subscription = await stripe.subscriptions.retrieve(
+      event.data.object.subscription
+    );
+    const customer = await stripe.customers.retrieve(
+      event.data.object.customer
+    );
+
+    if (invoice.billing_reason === "subscription_create") {
+      // Getting the mongoId from the metadata -
+
+      const mongoId = customer?.metadata?.mongoId;
+      const typeOfPlan = customer?.metadata?.type;
+      // calling the database and getting the totalcounts
+      let infoDB = await userdb.findById(mongoId);
+      let dbTotalCount = infoDB.totalCount;
+      let updatePlanCount;
+      if(typeOfPlan === "premium"){
+        updatePlanCount = dbTotalCount + 30;
+      }
+      else{
+        updatePlanCount = dbTotalCount + 50; 
+      }
+      const result = await userdb.findOneAndUpdate(
+        { _id: mongoId },
+        {
+          $set: {
+            subId: event.data.object.subscription,
+            endDate: subscription.current_period_end * 1000,
+            totalCount: updatePlanCount,
+            subType: typeOfPlan,
+          },
+        },
+        { new: true, useFindAndModify: false }
+      );
+      console.log(`A document was inserted with the invoice ID: ${invoice.id}`);
+      console.log(
+        `First subscription payment successful for Invoice ID: ${customer.email} ${customer?.metadata?.userId}`
+      );
+    } else if (
+      invoice.billing_reason === "subscription_cycle" ||
+      invoice.billing_reason === "subscription_update"
+    ) {
+      // Handle recurring subscription payments
+
+      const mongoId = customer?.metadata?.mongoId;
+      const typeOfPlan = customer?.metadata?.type;
+      // calling the database and getting the totalcounts
+      let infoDB = await userdb.findById(mongoId);
+      let dbTotalCount = infoDB.totalCount;
+      let updatePlanCount;
+      if(typeOfPlan === "premium"){
+        updatePlanCount = dbTotalCount + 30;
+      }
+      else{
+        updatePlanCount = dbTotalCount + 50; 
+      }
+      const result = await userdb.findOneAndUpdate(
+        { _id: mongoId },
+        {
+          $set: {
+            endDate: subscription.current_period_end * 1000,
+            recurringSuccessful_test: true,
+            totalCount: updatePlanCount,
+            subType: typeOfPlan,
+          },
+        },
+        { new: true, useFindAndModify: false }
+      );
+
+      if (result.matchedCount === 0) {
+        console.log("No documents matched the query. Document not updated");
+      } else if (result.modifiedCount === 0) {
+        console.log(
+          "Document matched but not updated (it may have the same data)"
+        );
+      } else {
+        console.log(`Successfully updated the document`);
+      }
+
+      console.log(
+        `Recurring subscription payment successful for Invoice ID: ${invoice.id}`
+      );
+    }
+
+    console.log(
+      new Date(subscription.current_period_end * 1000),
+      subscription.status,
+      invoice.billing_reason
+    );
+  }
+
+  // For canceled/renewed subscription
+  if (event.type === "customer.subscription.updated") {
+    const subscription = event.data.object;
+
+    const customer = await stripe.customers.retrieve(
+      event.data.object.customer
+    );
+
+    // console.log(event);
+    if (subscription.cancel_at_period_end) {
+      console.log(`Subscription ${subscription.id} was canceled.`);
+      const mongoId = customer?.metadata?.mongoId;
+
+      await stripe.subscriptions.update(
+        subscription.id,
+        {
+          cancel_at_period_end: true,
+        }
+      );
+
+      // DB code to update the customer's subscription status in your database
+      
+      const result = await userdb.findOneAndUpdate(
+        { _id: mongoId },
+        {
+          $unset: {
+            endDate: "",
+            subId: "",
+            recurringSuccessful_test: false
+          },
+        },
+        { new: true, useFindAndModify: false }
+      );
+
+
+    } else {
+      console.log(`Subscription ${subscription.id} was restarted.`);
+      // get subscription details and update the DB
+    }
+  }
+
+  res.status(200).end();
+});
 
 // Testing routes
 app.get("/test", (req, res) => {

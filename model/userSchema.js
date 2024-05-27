@@ -7,6 +7,16 @@ const userSchema = new mongoose.Schema({
     userName:String, 
     email:String, 
     openAIKey:String, 
+    subId:String, 
+    endDate:Number, 
+    subType: {
+        type:String, 
+        default: 'free',
+    },
+    recurringSuccessful_test: {
+        type:Boolean, 
+        default:false
+    }, 
     buttonCounts: {
         type: Number,
         default: 0
