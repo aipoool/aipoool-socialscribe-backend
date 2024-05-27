@@ -166,6 +166,8 @@ app.get("/auth/test", (req, res) => {
 
 /**** CHECKING IF WE GET THE DATA IN RETURN ***********/
 app.get('/get-user-data', checkAuthenticated , (req, res) => {
+  console.log(req.user);
+  console.log(req); 
   res.json({ user: req.user });
 })
 
