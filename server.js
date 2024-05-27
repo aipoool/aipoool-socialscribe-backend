@@ -449,6 +449,7 @@ app.post("/stripe-webhook", async (req, res) => {
     const customer = await stripe.customers.retrieve(
       event.data.object.customer
     );
+    console.log(customer.metadata);
 
     if (invoice.billing_reason === "subscription_create") {
       // Getting the mongoId from the metadata -
