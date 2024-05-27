@@ -386,8 +386,8 @@ app.post("/api/create-checkout-session", async (req, res) => {
     });
   }
 
-  console.log(`Customer::::::`);
-  console.log(customer);
+  // console.log(`Customer::::::`);
+  // console.log(customer);
 
   const lineItems = [
     {
@@ -449,6 +449,7 @@ app.post("/stripe-webhook", async (req, res) => {
     const customer = await stripe.customers.retrieve(
       event.data.object.customer
     );
+    console.log(`Customer Metadata::::::`);
     console.log(customer.metadata);
 
     if (invoice.billing_reason === "subscription_create") {
