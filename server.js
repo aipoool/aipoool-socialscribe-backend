@@ -368,7 +368,7 @@ app.post("/api/create-checkout-session", async (req, res) => {
 
       const stripeSession = await stripe.billingPortal.sessions.create({
         customer: customer.id,
-        return_url: "http://localhost:3000/success",
+        return_url: "https://socialscribe-aipoool.onrender.com/success",
       });
       //return res.status(409).json({ redirectUrl: stripeSession.url });
 
@@ -411,8 +411,8 @@ app.post("/api/create-checkout-session", async (req, res) => {
     line_items: lineItems,
     billing_address_collection: "auto",
     mode: "subscription",
-    success_url: "http://localhost:3000/success",
-    cancel_url: "http://localhost:3000/cancel",
+    success_url: "https://socialscribe-aipoool.onrender.com/success",
+    cancel_url: "https://socialscribe-aipoool.onrender.com/cancel",
     metadata: {
       userId: auth0UserId,
       mongoId: mongoId,
