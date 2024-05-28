@@ -386,8 +386,11 @@ app.post("/api/create-checkout-session", async (req, res) => {
     });
   }
 
-  // console.log(`Customer::::::`);
-  // console.log(customer);
+  console.log(`Customer::::::`);
+  console.log(customer);
+
+
+  console.log("Customer ID ::: ", customer.id);
 
   const lineItems = [
     {
@@ -421,6 +424,8 @@ app.post("/api/create-checkout-session", async (req, res) => {
     customer: customer.id,
   });
 
+  console.log(session.id); 
+
   res.json({ id: session.id });
 });
 
@@ -433,6 +438,7 @@ app.post("/stripe-webhook", async (req, res) => {
     const signature = req.headers["stripe-signature"];
     try {
       event = stripe.webhooks.constructEvent(req.body, signature, endptSecret);
+      console.log("Event Type ::: " , event.type); 
     } catch (err) {
       console.log(`⚠️  Webhook signature verification failed.`, err.message);
       return res.sendStatus(400);
@@ -538,8 +544,9 @@ app.post("/stripe-webhook", async (req, res) => {
 
   // For canceled/renewed subscription
   if (event.type === "customer.subscription.updated") {
-    const subscription = event.data.object;
-
+    const subscription = await stripe.subscriptions.retrieve(
+      event.data.object.subscription
+    );
     const customer = await stripe.customers.retrieve(
       event.data.object.customer
     );
@@ -564,7 +571,8 @@ app.post("/stripe-webhook", async (req, res) => {
           $unset: {
             endDate: "",
             subId: "",
-            recurringSuccessful_test: false
+            recurringSuccessful_test: false,
+            subType: 'free',
           },
         },
         { new: true, useFindAndModify: false }
