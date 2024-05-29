@@ -6,7 +6,6 @@ import passport from "passport";
 import session from "express-session";
 import OAuth2Strategy from "passport-google-oauth20";
 import cors from "cors";
-import { MongoClient, ServerApiVersion } from "mongodb";
 import userdb from "./model/userSchema.js";
 import connectionToDB from "./db/connection.js";
 import { postChatGPTMessage } from "./generateComment.js";
@@ -18,17 +17,6 @@ const stripe = Stripe(process.env.STRIPE_API_KEY);
 const endptSecret = process.env.WEBHOOK_SIGNING_SECRET;
 
 await connectionToDB();
-
-const client = new MongoClient(process.env.DATABASE, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
-
-// Connect to the client
-client.connect();
 
 const app = express();
 app.use(
@@ -510,6 +498,7 @@ app.post("/stripe-webhook", async (req, res) => {
         },
         { new: true, useFindAndModify: false }
       );
+
       console.log(`A document was inserted with the invoice ID: ${invoice.id}`);
       console.log(
         `First subscription payment successful for Invoice ID: ${customer.email} ${customer?.metadata?.userId}`
@@ -584,15 +573,17 @@ app.post("/stripe-webhook", async (req, res) => {
     const customer = await stripe.customers.retrieve(
       event.data.object.customer
     );
+    console.log(subscription); 
+    console.log(subscription.cancel_at_period_end);
 
     // console.log(event);
     if (subscription.cancel_at_period_end) {
       console.log(`Subscription ${subscription.id} was canceled.`);
       const mongoId = customer?.metadata?.mongoId;
 
-      await stripe.subscriptions.update(subscription.id, {
-        cancel_at_period_end: true,
-      });
+      // await stripe.subscriptions.update(subscription.id, {
+      //   cancel_at_period_end: true,
+      // });
 
       const result = await userdb.findOneAndUpdate(
         {
@@ -614,13 +605,15 @@ app.post("/stripe-webhook", async (req, res) => {
       );
 
       console.log("Customer from CANCEL SUBSCRIPTION :::: ", customer); // we're getting the data
+      console.log("Subscription after CANCEL SUBSCRIPTION :::: ", subscription); // we're getting
+      
     } else {
       ///calling the database and getting the totalcounts
       const mongoId = customer?.metadata?.mongoId;
       let infoDB = await userdb.findById(mongoId);
       let dbTotalCount = infoDB.totalCount;
       let hasCancelledSubscription = infoDB.hasCancelledSubscription;
-      console.log(hasCancelledSubscription); 
+      console.log("Has cancelled plan ::: " , hasCancelledSubscription); 
 
       if (hasCancelledSubscription) {
         const subscriptionsUpdated = await stripe.subscriptions.list({
