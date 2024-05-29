@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
     email:String, 
     openAIKey:String, 
     subId:String, 
+    stripePriceId:String,
+    stripeProductId:String,
     endDate:Number, 
     subType: {
         type:String, 
@@ -17,6 +19,10 @@ const userSchema = new mongoose.Schema({
         type:Boolean, 
         default:false
     }, 
+    hasCancelledSubscription: {
+        type:Boolean, 
+        default:false
+    },
     buttonCounts: {
         type: Number,
         default: 0
