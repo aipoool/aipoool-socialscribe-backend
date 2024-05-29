@@ -77,10 +77,12 @@ const limiter = rateLimit({
 });
 
 const checkAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) { return next() }
+  if (req.isAuthenticated()) {
+    return next();
+  }
   ///res.redirect("https://socialscribe-aipoool.onrender.com/login")
-  res.status(401).json({ error: 'Not authenticated' });
-}
+  res.status(401).json({ error: "Not authenticated" });
+};
 
 app.use(limiter);
 
@@ -165,10 +167,10 @@ app.get("/auth/test", (req, res) => {
 });
 
 /**** CHECKING IF WE GET THE DATA IN RETURN ***********/
-app.get('/get-user-data', checkAuthenticated , (req, res) => {
+app.get("/get-user-data", checkAuthenticated, (req, res) => {
   console.log("Request data from get-user-data : ", req.user);
   res.json({ user: req.user });
-})
+});
 
 // initial google oauth login
 app.get(
@@ -385,7 +387,7 @@ app.post("/api/create-checkout-session", async (req, res) => {
       metadata: {
         userId: auth0UserId, // Replace with actual Auth0 user ID
         mongoId: mongoId,
-        priceId: StripePriceId, 
+        priceId: StripePriceId,
         productId: StripeProductId,
         type: typeOfPlan,
       },
@@ -394,7 +396,6 @@ app.post("/api/create-checkout-session", async (req, res) => {
 
   console.log(`Customer::::::`);
   console.log(customer);
-
 
   console.log("Customer ID ::: ", customer.id);
 
@@ -432,14 +433,14 @@ app.post("/api/create-checkout-session", async (req, res) => {
     metadata: {
       userId: auth0UserId,
       mongoId: mongoId,
-      priceId: StripePriceId, 
+      priceId: StripePriceId,
       productId: StripeProductId,
       type: typeOfPlan,
     },
     customer: customer.id,
   });
 
-  console.log("Session ID Here ::: ", session.id); 
+  console.log("Session ID Here ::: ", session.id);
 
   res.json({ id: session.id });
 });
@@ -453,7 +454,7 @@ app.post("/stripe-webhook", async (req, res) => {
     const signature = req.headers["stripe-signature"];
     try {
       event = stripe.webhooks.constructEvent(req.body, signature, endptSecret);
-      console.log("Event Type ::: " , event.type); 
+      console.log("Event Type ::: ", event.type);
     } catch (err) {
       console.log(`⚠️  Webhook signature verification failed.`, err.message);
       return res.sendStatus(400);
@@ -470,11 +471,11 @@ app.post("/stripe-webhook", async (req, res) => {
     const customer = await stripe.customers.retrieve(
       event.data.object.customer
     );
-    // console.log(`Customer Metadata::::::`);
-    // console.log(customer.metadata);
 
-    console.log(`Subscription from the PAYMENT SUCCEEDED :::::: `, subscription);
-    
+    console.log(
+      `Subscription from the PAYMENT SUCCEEDED :::::: `,
+      subscription
+    );
 
     if (invoice.billing_reason === "subscription_create") {
       // Getting the mongoId from the metadata -
@@ -488,13 +489,12 @@ app.post("/stripe-webhook", async (req, res) => {
 
       let infoDB = await userdb.findById(mongoId);
       let dbTotalCount = infoDB.totalCount;
-      console.log(dbTotalCount); 
+      console.log(dbTotalCount);
       let updatePlanCount;
-      if(typeOfPlan === "premium"){
-        updatePlanCount = dbTotalCount + 10 ;
-      }
-      else{
-        updatePlanCount = dbTotalCount + 30; 
+      if (typeOfPlan === "premium") {
+        updatePlanCount = dbTotalCount + 10;
+      } else {
+        updatePlanCount = dbTotalCount + 30;
       }
       const result = await userdb.findOneAndUpdate(
         { _id: mongoId },
@@ -519,25 +519,26 @@ app.post("/stripe-webhook", async (req, res) => {
       invoice.billing_reason === "subscription_update"
     ) {
       // Handle recurring subscription payments
+      console.log(
+        `Subscription from the RECURRING PAYMENT :::::: `,
+        subscription
+      );
+      console.log(`CHANGED PLAN HERE  :::::: `, subscription.plan);
 
       const mongoId = customer?.metadata?.mongoId;
-      const typeOfPlan = customer?.metadata?.type;
-      const priceId = customer?.metadata?.priceId;
-      const productId = customer?.metadata?.productId;
-
-      console.log(`Subscription from the RECURRING PAYMENT :::::: `, subscription);
-
-
-
+      let updatePlanCount, typeOfPlan;
+      const priceId = subscription?.plan?.id;
+      const productId = subscription?.plan?.product;
       // calling the database and getting the totalcounts
       let infoDB = await userdb.findById(mongoId);
       let dbTotalCount = infoDB.totalCount;
-      let updatePlanCount;
-      if(typeOfPlan === "premium"){
+
+      if (priceId === "price_1PKzSsSGYG2CnOjsDpM6cUau") {
         updatePlanCount = dbTotalCount + 10;
-      }
-      else{
-        updatePlanCount = dbTotalCount + 30; 
+        typeOfPlan = "premium";
+      } else {
+        updatePlanCount = dbTotalCount + 30;
+        typeOfPlan = "pro";
       }
       const result = await userdb.findOneAndUpdate(
         { _id: mongoId },
@@ -566,9 +567,7 @@ app.post("/stripe-webhook", async (req, res) => {
 
       console.log(
         `Recurring subscription payment successful for Invoice ID: ${invoice.id}`
-        
       );
-
     }
 
     console.log(
@@ -585,40 +584,20 @@ app.post("/stripe-webhook", async (req, res) => {
     const customer = await stripe.customers.retrieve(
       event.data.object.customer
     );
-    
+
     // console.log(event);
     if (subscription.cancel_at_period_end) {
       console.log(`Subscription ${subscription.id} was canceled.`);
       const mongoId = customer?.metadata?.mongoId;
 
-      await stripe.subscriptions.update(
-        subscription.id,
-        {
-          cancel_at_period_end: true,
-        }
-      );
-
-      // DB code to update the customer's subscription status in your database
-      
-      // const result = await userdb.findOneAndUpdate(
-      //   { _id: mongoId },
-      //   {
-      //     $unset: {
-      //       endDate: "",
-      //       subId: "",
-      //       recurringSuccessful_test: false,
-      //       stripePriceId: "",
-      //       stripeProductId: "",
-      //       subType: 'free',
-      //     },
-      //   },
-      //   { new: true, useFindAndModify: false }
-      // );
+      await stripe.subscriptions.update(subscription.id, {
+        cancel_at_period_end: true,
+      });
 
       const result = await userdb.findOneAndUpdate(
         {
-          _id: mongoId
-        }, 
+          _id: mongoId,
+        },
         {
           $unset: {
             endDate: "",
@@ -627,68 +606,69 @@ app.post("/stripe-webhook", async (req, res) => {
             stripePriceId: "",
             stripeProductId: "",
           },
-            $set: {
-              subType: 'free',
-              hasCancelledSubscription : true,
-            }
+          $set: {
+            subType: "free",
+            hasCancelledSubscription: true,
+          },
         }
-    );
+      );
 
-      console.log("Customer from CANCEL SUBSCRIPTION :::: " , customer); // we're getting the data
-
-
+      console.log("Customer from CANCEL SUBSCRIPTION :::: ", customer); // we're getting the data
     } else {
-      console.log(`Subscription ${subscription.id} was restarted.`);
-      // get subscription details and update the DB
-      const subscriptionsUpdated = await stripe.subscriptions.list({
-        customer: customer.id,
-      });
-
-      console.log("Subscription plan ::: ", subscriptionsUpdated.data[0].plan);
-      console.log(customer?.metadata);
-
+      ///calling the database and getting the totalcounts
       const mongoId = customer?.metadata?.mongoId;
-      const priceId = subscriptionsUpdated.data[0].plan?.id;
-      const productId = subscriptionsUpdated.data[0].plan?.product;
+      let infoDB = await userdb.findById(mongoId);
+      let dbTotalCount = infoDB.totalCount;
+      let hasCancelledSubscription = infoDB.hasCancelledSubscription;
+      console.log(hasCancelledSubscription); 
 
-      console.log(`Original details ::::: ${customer?.metadata.priceId} --> 
-      ${customer?.metadata.productId} --> ${customer?.metadata.type}`);
+      if (hasCancelledSubscription) {
+        const subscriptionsUpdated = await stripe.subscriptions.list({
+          customer: customer.id,
+        });
 
-      console.log("Customer from RESTARTED SUBSCRIPTION :::: " , customer); // we're getting the data
+        console.log(
+          "Subscription plan ::: ",
+          subscriptionsUpdated.data[0].plan
+        );
+        console.log(customer?.metadata);
 
-      
-      // calling the database and getting the totalcounts
-      // let infoDB = await userdb.findById(mongoId);
-      // let dbTotalCount = infoDB.totalCount;
-      // let updatePlanCount,typeOfPlan;
-      // if(priceId === 'price_1PKzSsSGYG2CnOjsDpM6cUau'){
-      //   updatePlanCount = dbTotalCount + 30;
-      //   typeOfPlan = 'premium';
-      // }
-      // else{
-      //   updatePlanCount = dbTotalCount + 50; 
-      //   typeOfPlan = 'pro';
-      // }
+        const priceId = subscriptionsUpdated.data[0].plan?.id;
+        const productId = subscriptionsUpdated.data[0].plan?.product;
 
-      // console.log(`Changed to details ::::: ${priceId} --> 
-      // ${productId} --> ${typeOfPlan}`);
+        console.log(`Original details ::::: ${customer?.metadata.priceId} --> 
+        ${customer?.metadata.productId} --> ${customer?.metadata.type}`);
 
-      // const result = await userdb.findOneAndUpdate(
-      //   { _id: mongoId },
-      //   {
-      //     $set: {
-      //       endDate: subscription.current_period_end * 1000, // need to check this!!!
-      //       recurringSuccessful_test: true,
-      //       totalCount: updatePlanCount,
-      //       subType: typeOfPlan,
-      //       stripePriceId: priceId,
-      //       stripeProductId: productId,
-      //     },
-      //   },
-      //   { new: true, useFindAndModify: false }
-      // );
+        console.log("Customer from RESTARTED SUBSCRIPTION :::: ", customer); // we're getting the data
 
+        let updatePlanCount, typeOfPlan;
+        if (priceId === "price_1PKzSsSGYG2CnOjsDpM6cUau") {
+          updatePlanCount = dbTotalCount + 10;
+          typeOfPlan = "premium";
+        } else {
+          updatePlanCount = dbTotalCount + 30;
+          typeOfPlan = "pro";
+        }
 
+        console.log(`Changed to details ::::: ${priceId} -->
+      ${productId} --> ${typeOfPlan}`);
+
+        const result = await userdb.findOneAndUpdate(
+          { _id: mongoId },
+          {
+            $set: {
+              endDate: subscription.current_period_end * 1000, // need to check this!!!
+              recurringSuccessful_test: true,
+              totalCount: updatePlanCount,
+              subType: typeOfPlan,
+              stripePriceId: priceId,
+              stripeProductId: productId,
+              hasCancelledSubscription: false,
+            },
+          },
+          { new: true, useFindAndModify: false }
+        );
+      }
     }
   }
 
