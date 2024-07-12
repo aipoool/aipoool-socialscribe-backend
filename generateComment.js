@@ -5,7 +5,6 @@ import axios from "axios";
 const CHATGPT_END_POINT = "https://api.openai.com/v1/chat/completions";
 const CHATGPT_MODEL = "gpt-4o";
 const openAIKey = process.env.OPENAI_KEY;
-
 var prompt; 
 
 // Function to send a message to the ChatGPT API and return the response
