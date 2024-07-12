@@ -4,6 +4,7 @@ import express from "express";
 import morgan from "morgan";
 import passport from "passport";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import OAuth2Strategy from "passport-google-oauth20";
 import cors from "cors";
 import userdb from "./model/userSchema.js";
@@ -40,16 +41,28 @@ app.use("/stripe-webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 
 app.set("trust proxy", 1);
+// app.use(
+//   session({
+//     secret: process.env.SECRET_SESSION,
+//     resave: true, //we dont want to save a session if nothing is modified
+//     saveUninitialized: false, //dont create a session until something is stored
+//     cookie: {
+//       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+//       secure: "auto",
+//       sameSite: "none", //Enable when deployment OR when not using localhost, We're not on the same site, we're using different site so the cookie need to effectively transfer from Backend to Frontend
+//     },
+//   })
+// );
+
 app.use(
   session({
     secret: process.env.SECRET_SESSION,
     resave: true, //we dont want to save a session if nothing is modified
-    saveUninitialized: false, //dont create a session until something is stored
-    cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      secure: "auto",
-      sameSite: "none", //Enable when deployment OR when not using localhost, We're not on the same site, we're using different site so the cookie need to effectively transfer from Backend to Frontend
-    },
+    saveUninitialized: true, //dont create a session until something is stored
+    store: new MongoStore({
+      mongoUrl: process.env.DATABASE,
+      collection: 'sessions'
+    })
   })
 );
 
@@ -65,12 +78,15 @@ const limiter = rateLimit({
 });
 
 const checkAuthenticated = (req, res, next) => {
+  console.log("User is authenticated:", req.isAuthenticated()); // Debugging line
+  console.log("User session data:", req.session); // Debugging line
+  console.log("User data :: " , req); 
   if (req.isAuthenticated()) {
     return next();
   }
-  ///res.redirect("https://socialscribe-aipoool.onrender.com/login")
   res.status(401).json({ error: "Not authenticated" });
 };
+
 
 app.use(limiter);
 
@@ -253,10 +269,10 @@ app.get("/api/test", (req, res) => {
 /**OPENAI API ROUTES */
 app.options("/api/generate-response", cors());
 app.post("/api/generate-response", async (req, res) => {
-  const { post, tone, openAIKey, site } = req.body;
+  const { post, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model } = req.body;
 
   try {
-    const comment = await postChatGPTMessage(post, tone, openAIKey, site);
+    const comment = await postChatGPTMessage(post, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model);
     res.json({ results: { comment } });
   } catch (err) {
     console.log(err);
@@ -285,7 +301,7 @@ app.post("/api/setCounter", async (req, res) => {
   }
 });
 
-app.post("/api/getCounter", async (req, res) => {
+app.post("/api/getCounter", checkAuthenticated, async (req, res) => {
   const { id, accessToken } = req.body;
   try {
     if (accessToken) {
