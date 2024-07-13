@@ -51,7 +51,7 @@ app.use(
       collection: 'sessions'
     }),
     cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
       secure: "auto",
       sameSite: "none", //Enable when deployment OR when not using localhost, We're not on the same site, we're using different site so the cookie need to effectively transfer from Backend to Frontend
     },
@@ -221,7 +221,7 @@ app.get("/auth/login/success", async (req, res) => {
   // }
 });
 
-app.post("/auth/userdata", async (req, res) => {
+app.post("/auth/userdata", checkAuthenticated, async (req, res) => {
   const { id, accessToken } = req.body;
   try {
     if (accessToken) {
@@ -272,7 +272,7 @@ app.get("/api/test", (req, res) => {
 
 /**OPENAI API ROUTES */
 app.options("/api/generate-response", cors());
-app.post("/api/generate-response", async (req, res) => {
+app.post("/api/generate-response", checkAuthenticated, async (req, res) => {
   const { post, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model } = req.body;
 
   try {
