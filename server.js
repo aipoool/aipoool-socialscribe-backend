@@ -46,6 +46,10 @@ app.use(
     secret: process.env.SECRET_SESSION,
     resave: true, //we dont want to save a session if nothing is modified
     saveUninitialized: false, //dont create a session until something is stored
+    store: new MongoStore({
+      mongoUrl: process.env.DATABASE,
+      collection: 'sessions'
+    }),
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       secure: "auto",
