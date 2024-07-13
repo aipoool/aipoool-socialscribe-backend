@@ -8,7 +8,7 @@ const openAIKey = process.env.OPENAI_KEY;
 var prompt; 
 
 // Function to send a message to the ChatGPT API and return the response
-export const postChatGPTMessage = async (post, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model) => {
+export const postChatGPTMessage = async (post, postImgArray, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model) => {
 
   if(tabId === 1){
     prompt = `Act like an experienced social media strategist. You have been helping businesses build their online presence and engage with their audience effectively for over 15 years. Your expertise spans various platforms, including ${site}, where you craft precise, engaging, and relevant replies to posts.
@@ -19,6 +19,8 @@ export const postChatGPTMessage = async (post, tone, changesByUser, site, tabId,
     1. Analyze the following post from ${site}:
        - Post: ${post}
        - Identify the language of the post. If it is not identifiable, consider it as English.
+         - Images: Review the images provided in the post in the form of urls.:
+     ${postImgArray[0]}, ${postImgArray[1]}, ${postImgArray[2]}
     
     2. Determine the sentiment required for the reply:
        - Sentiment: ${tone}
@@ -27,7 +29,7 @@ export const postChatGPTMessage = async (post, tone, changesByUser, site, tabId,
        - Reply in the language specified by the user: ${language}. If not specified or is set to "Default", reply in the same language as the post if identifiable; otherwise, use English.
        - Do not use any hashtags, even if they are present in the original post.
        - Avoid starting with phrases like "Great" or "Awesome" and get straight to the point.
-       - Ensure the response is strictly of ${postLength} length and does not exceed 260 characters, after striclty including the character length of ${templatedMsg}.
+       - Ensure the response is strictly of ${postLength} and does not exceed 260 characters, after strictly including the character length of ${templatedMsg}.
        - Do not reference this prompt or go off-topic.
     
     4. Incorporate the user's preferences into the reply:
@@ -49,6 +51,10 @@ Objective: Your goal is to rephrase the given text to align with the user's spec
 Steps to follow:
 1. Analyze the following post from ${site}:
    - Post: ${post}
+   - Identify the language of the post. If it is not identifiable, consider it as English.
+   - Images: Review the images provided in the post in the form of urls.:
+     ${postImgArray[0]}, ${postImgArray[1]}, ${postImgArray[2]}
+   
 
 2. Review the provided text that needs rephrasing:
    - Text by User: ${textByUser}
@@ -60,7 +66,7 @@ Steps to follow:
    - Ensure the rephrased text aligns with the language specified by the user: ${language}.
    - If the language is not specified or is set to "Default", rephrase in the same language as the original text if identifiable; otherwise, use English.
    - Maintain a direct and human-like tone.
-   - Ensure the rephrased text is strictly of ${postLength} length and does not exceed 260 characters, after striclty including the character length of ${templatedMsg}.
+   - Ensure the rephrased text is strictly of ${postLength} and does not exceed 260 characters, after strictly including the character length of ${templatedMsg}.
    - Do not reference this prompt or go off-topic.
    - Seamlessly add the following templated message to the end of the rephrased text without making it look different from the tone and theme of the generated response: ${templatedMsg}
 
@@ -78,6 +84,9 @@ Objective: Your goal is to rephrase the given spoken text to align with the user
 Steps to follow:
 1. Analyze the following post from ${site}:
    - Post: ${post}
+   - Identify the language of the post. If it is not identifiable, consider it as English.
+   - Images: Review the images provided in the post in the form of urls.:
+     ${postImgArray[0]}, ${postImgArray[1]}, ${postImgArray[2]}
 
 2. Review the spoken text provided by the user:
    - User Spoken Text: ${textByUser}
@@ -89,7 +98,7 @@ Steps to follow:
    - Ensure the rephrased text aligns with the language specified by the user: ${language}.
    - If the language is not specified or is set to "Default", rephrase in the same language as the original text if identifiable; otherwise, use English.
    - Maintain a direct and human-like tone.
-   - Ensure the rephrased text is exactly of ${postLength} length and does not exceed 260 characters, after striclty including the character length of ${templatedMsg}.
+   - Ensure the rephrased text is strictly of ${postLength} and does not exceed 260 characters, after strictly including the character length of ${templatedMsg}.
    - Do not reference this prompt or go off-topic.
    - Seamlessly add the following templated message to the end of the rephrased text without making it look different from the tone and theme of the generated response: ${templatedMsg}
 

@@ -273,10 +273,10 @@ app.get("/api/test", (req, res) => {
 /**OPENAI API ROUTES */
 app.options("/api/generate-response", cors());
 app.post("/api/generate-response", checkAuthenticated, async (req, res) => {
-  const { post, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model } = req.body;
+  const { post, postImgArray, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model } = req.body;
 
   try {
-    const comment = await postChatGPTMessage(post, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model);
+    const comment = await postChatGPTMessage(post, postImgArray, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model);
     res.json({ results: { comment } });
   } catch (err) {
     console.log(err);
