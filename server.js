@@ -83,8 +83,6 @@ const limiter = rateLimit({
 
 const checkAuthenticated = (req, res, next) => {
   console.log("User is authenticated:", req.isAuthenticated()); // Debugging line
-  console.log("User session data:", req.session); // Debugging line
-  console.log("User data :: " , req); 
   if (req.isAuthenticated()) {
     return next();
   }
@@ -127,7 +125,6 @@ passport.use(
       scope: ["profile", "email"],
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log("Profile: ", profile);
       const existingUser = await userdb.findOneAndUpdate(
         { googleId: profile.id },
         {
@@ -192,8 +189,6 @@ app.get("/auth/login/success", async (req, res) => {
   console.log("Request data from login/success : ", req.user);
   if (req.user) {
     res.status(200).json({ message: "User Login", user: req.user });
-    //res.send({user:req.user});
-    console.log("Entered the login success route..");
   } else {
     res.status(403).json({ message: "User Not Authorized" });
   }
@@ -221,7 +216,6 @@ app.post("/auth/userdata", checkAuthenticated, async (req, res) => {
   try {
     if (accessToken) {
       const user = await userdb.findById(id);
-      console.log("USER DATA :: : ", user);
       console.log({ results: user });
       res.status(200).json({ results: user });
     }
@@ -272,7 +266,6 @@ app.options("/api/generate-response", cors());
 app.post("/api/generate-response", checkAuthenticated, async (req, res) => {
   const { post, postImgArray, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model } = req.body;
 
-  console.log('This is the Image array received at the server: ', postImgArray);
 
   try {
     const comment = await postChatGPTMessage(post, postImgArray, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model);
