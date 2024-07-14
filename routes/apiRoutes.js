@@ -1,4 +1,4 @@
-import userdb from "../model/userSchema";
+import userdb from "../model/userSchema.js";
 import { postChatGPTMessage } from "../controllers/apiController.js";
 import checkAuthenticated from "../middlewares/authMiddleware.js";
 
