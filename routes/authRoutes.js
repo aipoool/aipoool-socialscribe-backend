@@ -4,6 +4,8 @@ import { loginSuccess, logout } from '../controllers/authController.js';
 import checkAuthenticated from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
+router.use(passport.initialize());
+router.use(passport.session());
 
 router.get("/test", (req, res) => {
     res.json({ Hi: "This is the AUTH Route, after the modular edits have been made " });
