@@ -174,11 +174,6 @@ app.get("/auth/test", (req, res) => {
   res.json({ Hi: "This is the AUTH Route, after the edits have been made " });
 });
 
-/**** CHECKING IF WE GET THE DATA IN RETURN ***********/
-app.get("/get-user-data", checkAuthenticated, (req, res) => {
-  console.log("Request data from get-user-data : ", req.user);
-  res.json({ user: req.user });
-});
 
 // initial google oauth login
 app.get(
@@ -236,6 +231,8 @@ app.post("/auth/userdata", checkAuthenticated, async (req, res) => {
   }
 });
 
+
+/**WILL BE REMOVING ONCE THE CHANGES ARE BEING MADE COMPLETELY */
 app.post("/auth/enter-your-key/success", async (req, res) => {
   const { id, openAIKey } = req.body;
   console.log("Path is enter-your-key/success ", id, openAIKey);
@@ -275,6 +272,8 @@ app.options("/api/generate-response", cors());
 app.post("/api/generate-response", checkAuthenticated, async (req, res) => {
   const { post, postImgArray, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model } = req.body;
 
+  console.log('This is the Image array received at the server: ', postImgArray);
+
   try {
     const comment = await postChatGPTMessage(post, postImgArray, tone, changesByUser, site, tabId, templatedMsg, postLength, language, styleOfWriting, textByUser , model);
     res.json({ results: { comment } });
@@ -284,7 +283,7 @@ app.post("/api/generate-response", checkAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/api/setCounter", async (req, res) => {
+app.post("/api/setCounter", checkAuthenticated, async (req, res) => {
   const { id, count, accessToken } = req.body;
   console.log(req.body);
 
@@ -323,6 +322,7 @@ app.post("/api/getCounter", checkAuthenticated, async (req, res) => {
   }
 });
 
+/**WILL BE REMOVING ONCE THE CHANGES ARE BEING MADE COMPLETELY */
 app.post("/api/check", async (req, res) => {
   const { key } = req.body;
 
