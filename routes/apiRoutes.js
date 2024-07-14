@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import userdb from "../model/userSchema.js";
 import { postChatGPTMessage } from "../controllers/apiController.js";
 import checkAuthenticated from "../middlewares/authMiddleware.js";
