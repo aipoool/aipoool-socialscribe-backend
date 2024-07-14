@@ -1,6 +1,9 @@
+import express from "express";
 import userdb from "../model/userSchema.js";
 import { postChatGPTMessage } from "../controllers/apiController.js";
 import checkAuthenticated from "../middlewares/authMiddleware.js";
+
+const router = express.Router();
 
 router.get("/test", (req, res) => {
     res.json({ Hi: "This is the API Route" });
