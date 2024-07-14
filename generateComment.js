@@ -29,7 +29,7 @@ export const postChatGPTMessage = async (post, postImgArray, tone, changesByUser
        - Reply in the language specified by the user: ${language}. If not specified or is set to "Default", reply in the same language as the post if identifiable; otherwise, use English.
        - Do not use any hashtags, even if they are present in the original post.
        - Avoid starting with phrases like "Great" or "Awesome" and get straight to the point.
-       - Ensure the response is strictly of ${postLength} and does not exceed 260 characters, after strictly including the character length of ${templatedMsg}.
+       - Ensure the response fits the specified ${postLength} (1-2 lines, 2-3 lines, or 3-4 lines) and does not exceed 260 characters, including the character length of ${templatedMsg}.
        - Do not reference this prompt or go off-topic.
     
     4. Incorporate the user's preferences into the reply:
@@ -40,8 +40,6 @@ export const postChatGPTMessage = async (post, postImgArray, tone, changesByUser
     
     Take a deep breath and work on this problem step-by-step. 
     Just return the Final Reply that you have crafted & don't share the steps.
-    
-    
     `
   }else if(tabId === 2){
     prompt = `Act like an experienced editor and social media strategist. You have been helping businesses refine their online communications and engage with their audience effectively for over 15 years. Your expertise includes rephrasing and enhancing text to ensure clarity, engagement, and adherence to the user's preferences.
@@ -66,7 +64,7 @@ Steps to follow:
    - Ensure the rephrased text aligns with the language specified by the user: ${language}.
    - If the language is not specified or is set to "Default", rephrase in the same language as the original text if identifiable; otherwise, use English.
    - Maintain a direct and human-like tone.
-   - Ensure the rephrased text is strictly of ${postLength} and does not exceed 260 characters, after strictly including the character length of ${templatedMsg}.
+   - Ensure the response fits the specified ${postLength} (1-2 lines, 2-3 lines, or 3-4 lines) and does not exceed 260 characters, including the character length of ${templatedMsg}.
    - Do not reference this prompt or go off-topic.
    - Seamlessly add the following templated message to the end of the rephrased text without making it look different from the tone and theme of the generated response: ${templatedMsg}
 
@@ -98,7 +96,7 @@ Steps to follow:
    - Ensure the rephrased text aligns with the language specified by the user: ${language}.
    - If the language is not specified or is set to "Default", rephrase in the same language as the original text if identifiable; otherwise, use English.
    - Maintain a direct and human-like tone.
-   - Ensure the rephrased text is strictly of ${postLength} and does not exceed 260 characters, after strictly including the character length of ${templatedMsg}.
+   - Ensure the response fits the specified ${postLength} (1-2 lines, 2-3 lines, or 3-4 lines) and does not exceed 260 characters, including the character length of ${templatedMsg}.
    - Do not reference this prompt or go off-topic.
    - Seamlessly add the following templated message to the end of the rephrased text without making it look different from the tone and theme of the generated response: ${templatedMsg}
 
