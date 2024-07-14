@@ -5,7 +5,7 @@ import checkAuthenticated from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-app.get("/test", (req, res) => {
+router.get("/test", (req, res) => {
     res.json({ Hi: "This is the AUTH Route, after the modular edits have been made " });
   });
 
